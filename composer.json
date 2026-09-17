@@ -1,0 +1,24 @@
+{
+  "name": "happiness/happiness-bundle",
+  "description": "Customizes various aspects of Kimai.",
+  "homepage": "https://www.kimai.org",
+  "type": "kimai-plugin",
+  "version": "1.0.0",
+  "require": {
+    "kimai/kimai": "^2.0"
+  },
+  "keywords": [
+    "kimai",
+    "kimai-plugin",
+    "timesheet",
+    "weekday"
+  ],
+  "license": "MIT",
+  "extra": {
+    "kimai": {
+      "require": 20000,
+      "name": "HappinessBundle",
+      "version": "1.0.0"
+    }
+  }
+}
