@@ -11,6 +11,12 @@
         {% set checkOverlappingAsc = not checkOverlappingDesc %}
     {% endif %}
 
+    {% set dayTotals = {} %}
+    {% for entry in dataTable %}
+        {% set dKey = entry.begin|date_short %}
+        {% set dayTotals = dayTotals|merge({(dKey): (dayTotals[dKey]|default(0) + entry.duration)}) %}
+    {% endfor %}
+
     {% set day = null %}
     {% set dayDuration = 0 %}
     {% set dayRate = {} %}
@@ -30,11 +36,18 @@
             {% set day = entry.begin|date_short %}
             <tr class="table-light weekday-group-header{% if entry.begin is today %} today bg-azure-lt{% elseif entry.begin is weekend %} weekend bg-muted-lt{% endif %}">
                 <th colspan="{{ sortedColumns|length }}" class="fw-bold py-2">
-                    <span class="weekday-name">{{ entry.begin|day_name }}</span>,
-                    <span class="weekday-date">{{ entry.begin|date_short }}</span>
-                    {% if entry.begin is today %}
-                        <span class="badge bg-blue text-blue-fg ms-2">{{ 'today'|trans }}</span>
-                    {% endif %}
+                    <div class="d-flex justify-content-start gap-3 align-items-center">
+                        <div>
+                            <span class="weekday-name">{{ entry.begin|day_name }}</span>,
+                            <span class="weekday-date">{{ entry.begin|date_short }}</span>
+                            {% if entry.begin is today %}
+                                <span class="badge bg-blue text-blue-fg ms-2">{{ 'today'|trans }}</span>
+                            {% endif %}
+                        </div>
+                        <div class="weekday-total">
+                            <span class="badge bg-primary-lt ms-1">{{ dayTotals[day]|duration }}</span>
+                        </div>
+                    </div>
                 </th>
             </tr>
         {%- endif -%}
@@ -77,6 +90,83 @@
         {% from "macros/status.html.twig" import status_duration %}
         {{ status_duration(stats.duration|duration) }}
     {% endif %}
+{% endblock %}
+
+{% block table_actions %}
+    <div class="btn-list">
+    {% if dataTable.hasConfiguration() %}
+        <a class="btn btn-icon" href="#" data-bs-toggle="modal" data-bs-target="#modal_{{ dataTable.getTableName() }}" title="{{ 'modal.columns.title'|trans }}">
+            {{ icon('columns', true) }}
+        </a>
+    {% endif %}
+    {% set form = dataTable.getSearchForm() %}
+    {% if form is not null %}
+        {% form_theme form 'form/search.html.twig' %}
+        {% form_theme form.order 'form/vertical.html.twig' %}
+        {{ form_start(form, {'attr': {'class': 'searchform'}}) }}
+        {% set searchTerm = form_widget(form.searchTerm) %}
+        {% set orderHasError = form.orderBy.vars.errors|length > 0 or form.order.vars.errors|length > 0 %}
+        {% set orderBy = form_widget(form.orderBy) %}
+        {% set order = form_widget(form.order) %}
+        {% set filterCount = dataTable.getQuery().countFilter() %}
+        <div class="input-group inline-search position-static">
+            <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="false" aria-haspopup="true" aria-expanded="false" id="search-dropdown-btn" title="{{ 'search_filter'|trans }}">
+                {{ icon('filter', true) }}
+                {% if filterCount > 0 %}<span class="badge badge-notification bg-primary text-primary-fg ms-1 d-none d-sm-inline">{{ filterCount }}</span>{% endif %}
+            </button>
+            <div class="dropdown-menu p-3 search-dropdown" data-popper-placement="bottom-start" aria-labelledby="search-dropdown-btn">
+                {{ form_rest(form) }}
+                <div class="mb-2 row {% if orderHasError %} is-invalid{% endif %} ">
+                    {{ form_label(form.orderBy) }}
+                    <div class="col-sm-4 col-xs-6">
+                        {{ orderBy|raw }}
+                        {{ form_errors(form.orderBy) }}
+                    </div>
+                    <div class="col-sm-4 col-xs-6">
+                        {{ order|raw }}
+                        {{ form_errors(form.order) }}
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-12 text-end">
+                        <button type="submit" class="btn btn-primary">{{ 'search'|trans }}</button>
+                    </div>
+                </div>
+            </div>
+            {{ searchTerm|raw }}
+            <span class="input-group-text">
+                {% set bookmarkToken = csrf_token('search') %}
+                {% set searchBtnClass = 'btn btn-icon btn-sm btn-ghost-secondary p-1' %}
+                <input type="hidden" name="_token" value="{{ bookmarkToken }}">
+                <button type="submit" class="{{ searchBtnClass }}" data-toggle="tooltip" title="{{ 'search'|trans }}">
+                    {{ icon('search') }}
+                </button>
+
+                {% if form.vars.data.bookmark %}
+                <a class="{{ searchBtnClass }} text-yellow" href="?_token={{ bookmarkToken }}&removeDefaultQuery={{ form.vars.data.bookmark.name }}" data-toggle="tooltip" title="{{ 'remove_default'|trans }}" id="removeDefaultQuery">
+                    {{ icon('bookmarked') }}
+                </a>
+                {% elseif filterCount > 0 %}
+                <button class="{{ searchBtnClass }}" type="submit" id="setDefaultQuery" name="setDefaultQuery" data-toggle="tooltip" title="{{ 'set_as_default'|trans }}">
+                    {{ icon('bookmark') }}
+                </button>
+                {% endif %}
+
+                {% if filterCount > 0 and not form.vars.data.isBookmarkSearch() %}
+                    <a class="{{ searchBtnClass }} text-orange" href="{{ path(app.request.attributes.get('_route')) }}" data-toggle="tooltip" title="{{ 'remove_filter'|trans }}">
+                        {{ icon('cancel') }}
+                    </a>
+                {% endif %}
+            </span>
+        </div>
+        <input type="hidden" name="performSearch" value="performSearch" />
+        {{ form_end(form) }}
+    {% endif %}
+    {% set thisWeek = happiness_this_week_range(app.user) %}
+    <a href="{{ path(app.request.attributes.get('_route'), {'daterange': thisWeek, 'performSearch': 'performSearch'}) }}" class="btn btn-this-week" title="{{ 'daterangepicker.thisWeek'|trans({}, 'daterangepicker') }}">
+        {{ 'daterangepicker.thisWeek'|trans({}, 'daterangepicker') }}
+    </a>
+    </div>
 {% endblock %}
 
 {% block datatable_row_attr %}
