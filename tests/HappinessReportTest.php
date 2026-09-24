@@ -17,15 +17,25 @@ use App\Entity\Project;
 use App\Entity\User;
 use App\Event\ReportingEvent;
 use App\Form\Model\DateRange;
+use App\Form\Type\ActivityType;
+use App\Form\Type\CustomerType;
+use App\Form\Type\DateRangeType;
+use App\Form\Type\ProjectType;
+use App\Form\Type\UserType;
 use App\Reporting\Report;
+use App\Repository\ActivityRepository;
+use App\Repository\Query\ActivityFormTypeQuery;
 use Doctrine\ORM\AbstractQuery;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use KimaiPlugin\HappinessBundle\EventSubscriber\ReportingSubscriber;
+use KimaiPlugin\HappinessBundle\Form\HappinessReportForm;
 use KimaiPlugin\HappinessBundle\Reporting\HappinessReportQuery;
 use KimaiPlugin\HappinessBundle\Repository\HappinessReportRepository;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
@@ -108,6 +118,65 @@ class HappinessReportTest extends TestCase
         self::assertSame([$project], $query->getProjects());
         self::assertSame([$activity], $query->getActivities());
         self::assertSame([$otherUser], $query->getUsers());
+    }
+
+    public function testHappinessReportFormConfigurationAndActivityQueryBuilder(): void
+    {
+        $formType = new HappinessReportForm();
+
+        $resolver = new OptionsResolver();
+        $formType->configureOptions($resolver);
+
+        $user = new User();
+        $options = $resolver->resolve(['user' => $user]);
+
+        self::assertSame(HappinessReportQuery::class, $options['data_class']);
+        self::assertFalse($options['csrf_protection']);
+        self::assertSame('GET', $options['method']);
+        self::assertSame($user, $options['user']);
+
+        $fields = [];
+        $builder = $this->createMock(FormBuilderInterface::class);
+        $builder->method('add')->willReturnCallback(function ($child, $type, $options) use (&$fields, $builder) {
+            $fields[$child] = [
+                'type' => $type,
+                'options' => $options,
+            ];
+
+            return $builder;
+        });
+
+        $formType->buildForm($builder, $options);
+
+        self::assertArrayHasKey('dateRange', $fields);
+        self::assertArrayHasKey('customers', $fields);
+        self::assertArrayHasKey('projects', $fields);
+        self::assertArrayHasKey('activities', $fields);
+        self::assertArrayHasKey('users', $fields);
+
+        self::assertSame(ActivityType::class, $fields['activities']['type']);
+        self::assertSame(ProjectType::class, $fields['projects']['type']);
+        self::assertTrue($fields['projects']['options']['join_customer']);
+
+        $activityOptions = $fields['activities']['options'];
+        self::assertTrue($activityOptions['multiple']);
+        self::assertIsCallable($activityOptions['query_builder']);
+
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->method('getExpressionBuilder')->willReturn(new \Doctrine\ORM\Query\Expr());
+        $qb = new QueryBuilder($em);
+        $qb->select('a')->from(Activity::class, 'a');
+
+        $activityRepo = $this->createMock(ActivityRepository::class);
+        $activityRepo->expects(self::once())
+            ->method('createQueryBuilder')
+            ->with('a')
+            ->willReturn($qb);
+
+        $resultQb = ($activityOptions['query_builder'])($activityRepo);
+        self::assertSame($qb, $resultQb);
+        self::assertStringContainsString('a.project', (string) $qb->getDQL());
+        self::assertStringContainsString('p.customer', (string) $qb->getDQL());
     }
 
     public function testHappinessReportRepositoryGrouping(): void
