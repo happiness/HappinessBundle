@@ -1,0 +1,84 @@
+{% extends 'reporting/layout.html.twig' %}
+
+{% block report %}
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">{{ 'report_happiness'|trans({}, 'happiness') }}</h3>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover table-vcenter card-table table-bordered">
+                <thead>
+                    <tr>
+                        <th>{{ 'user'|trans }} / {{ 'activity'|trans }}</th>
+                        <th class="text-center w-1">{{ 'entry.duration'|trans }}</th>
+                        <th class="text-end w-1">{{ 'stats.amountTotal'|trans }}</th>
+                        <th class="text-end w-1">{{ 'internalRate'|trans }}</th>
+                        <th class="text-center w-1">{{ 'stats.amountRecords'|trans }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% if reportData.users is empty %}
+                    <tr>
+                        <td colspan="5" class="text-center text-muted py-4">
+                            {{ 'stats.no_data'|trans }}
+                        </td>
+                    </tr>
+                {% else %}
+                    {% for item in reportData.users %}
+                        <tr class="table-light fw-bold">
+                            <td>
+                                <i class="fas fa-user me-2 text-muted"></i>
+                                {{ item.user.displayName }}
+                            </td>
+                            <td class="text-center text-nowrap">
+                                {{ item.duration|duration }}
+                            </td>
+                            <td class="text-end text-nowrap">
+                                {{ item.rate|money }}
+                            </td>
+                            <td class="text-end text-nowrap">
+                                {{ item.internalRate|money }}
+                            </td>
+                            <td class="text-center text-nowrap">
+                                {{ item.totalRecords }}
+                            </td>
+                        </tr>
+
+                        {% for actData in item.activities %}
+                            <tr>
+                                <td class="ps-5">
+                                    <i class="fas fa-tasks me-2 text-muted"></i>
+                                    {{ actData.activity.name }}
+                                </td>
+                                <td class="text-center text-nowrap">
+                                    {{ actData.duration|duration }}
+                                </td>
+                                <td class="text-end text-nowrap">
+                                    {{ actData.rate|money }}
+                                </td>
+                                <td class="text-end text-nowrap">
+                                    {{ actData.internalRate|money }}
+                                </td>
+                                <td class="text-center text-nowrap">
+                                    {{ actData.totalRecords }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% endfor %}
+                {% endif %}
+                </tbody>
+                {% if reportData.users is not empty %}
+                    <tfoot>
+                        <tr class="table-active fw-bold">
+                            <th>{{ 'sum.total'|trans }}</th>
+                            <th class="text-center text-nowrap">{{ reportData.totals.duration|duration }}</th>
+                            <th class="text-end text-nowrap">{{ reportData.totals.rate|money }}</th>
+                            <th class="text-end text-nowrap">{{ reportData.totals.internalRate|money }}</th>
+                            <th class="text-center text-nowrap">{{ reportData.totals.totalRecords }}</th>
+                        </tr>
+                    </tfoot>
+                {% endif %}
+            </table>
+        </div>
+    </div>
+{% endblock %}

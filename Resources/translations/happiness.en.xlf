@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" target-language="en" datatype="plaintext" original="happiness.en.xlf">
+    <body>
+      <trans-unit id="happiness_report" resname="report_happiness">
+        <source>report_happiness</source>
+        <target>Happiness report (by user &amp; activity)</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>
