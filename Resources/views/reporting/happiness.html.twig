@@ -73,10 +73,7 @@
                                                 <tr class="text-muted small">
                                                     <th>{{ 'date'|trans }}</th>
                                                     <th>{{ 'project'|trans }}</th>
-                                                    <th>{{ 'description'|trans }}</th>
                                                     <th class="text-center w-1">{{ 'duration'|trans }}</th>
-                                                    <th class="text-end w-1">{{ 'stats.amountTotal'|trans }}</th>
-                                                    <th class="text-end w-1">{{ 'internalRate'|trans }}</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -84,24 +81,14 @@
                                                 <tr>
                                                     <td class="text-nowrap">
                                                         {{ timesheet.begin|date_short }}
-                                                        <span class="text-muted small">({{ timesheet.begin|time }} &ndash; {% if timesheet.end %}{{ timesheet.end|time }}{% else %}&dash;{% endif %})</span>
                                                     </td>
                                                     <td>
                                                         {% if timesheet.project is not null %}
                                                             {{ timesheet.project.name }}
                                                         {% endif %}
                                                     </td>
-                                                    <td>
-                                                        {{ timesheet.description|nl2br }}
-                                                    </td>
                                                     <td class="text-center text-nowrap">
                                                         {{ timesheet.duration|duration }}
-                                                    </td>
-                                                    <td class="text-end text-nowrap">
-                                                        {{ timesheet.rate|money }}
-                                                    </td>
-                                                    <td class="text-end text-nowrap">
-                                                        {{ timesheet.internalRate|money }}
                                                     </td>
                                                 </tr>
                                             {% endfor %}
