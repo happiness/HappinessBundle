@@ -45,8 +45,10 @@
                         </tr>
 
                         {% for actData in item.activities %}
-                            <tr>
+                            {% set targetId = 'activity-details-' ~ item.user.id ~ '-' ~ actData.activity.id %}
+                            <tr class="cursor-pointer" data-bs-toggle="collapse" data-bs-target="#{{ targetId }}" aria-expanded="false" aria-controls="{{ targetId }}" style="cursor: pointer;">
                                 <td class="ps-5">
+                                    <i class="fas fa-caret-right me-2 text-muted"></i>
                                     <i class="fas fa-tasks me-2 text-muted"></i>
                                     {{ actData.activity.name }}
                                 </td>
@@ -61,6 +63,51 @@
                                 </td>
                                 <td class="text-center text-nowrap">
                                     {{ actData.totalRecords }}
+                                </td>
+                            </tr>
+                            <tr class="collapse bg-body-tertiary" id="{{ targetId }}">
+                                <td colspan="5" class="p-3">
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-hover table-bordered mb-0 bg-body">
+                                            <thead>
+                                                <tr class="text-muted small">
+                                                    <th>{{ 'date'|trans }}</th>
+                                                    <th>{{ 'project'|trans }}</th>
+                                                    <th>{{ 'description'|trans }}</th>
+                                                    <th class="text-center w-1">{{ 'duration'|trans }}</th>
+                                                    <th class="text-end w-1">{{ 'stats.amountTotal'|trans }}</th>
+                                                    <th class="text-end w-1">{{ 'internalRate'|trans }}</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                            {% for timesheet in actData.timesheets %}
+                                                <tr>
+                                                    <td class="text-nowrap">
+                                                        {{ timesheet.begin|date_short }}
+                                                        <span class="text-muted small">({{ timesheet.begin|time }} &ndash; {% if timesheet.end %}{{ timesheet.end|time }}{% else %}&dash;{% endif %})</span>
+                                                    </td>
+                                                    <td>
+                                                        {% if timesheet.project is not null %}
+                                                            {{ timesheet.project.name }}
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>
+                                                        {{ timesheet.description|nl2br }}
+                                                    </td>
+                                                    <td class="text-center text-nowrap">
+                                                        {{ timesheet.duration|duration }}
+                                                    </td>
+                                                    <td class="text-end text-nowrap">
+                                                        {{ timesheet.rate|money }}
+                                                    </td>
+                                                    <td class="text-end text-nowrap">
+                                                        {{ timesheet.internalRate|money }}
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </td>
                             </tr>
                         {% endfor %}

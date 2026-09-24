@@ -14,6 +14,7 @@ namespace KimaiPlugin\HappinessBundle\Tests;
 use App\Entity\Activity;
 use App\Entity\Customer;
 use App\Entity\Project;
+use App\Entity\Timesheet;
 use App\Entity\User;
 use App\Event\ReportingEvent;
 use App\Form\Model\DateRange;
@@ -203,60 +204,38 @@ class HappinessReportTest extends TestCase
         $a2Prop = new \ReflectionProperty(Activity::class, 'id');
         $a2Prop->setValue($activity2, 200);
 
-        $userRepo = $this->createMock(EntityRepository::class);
-        $userRepo->method('findBy')->willReturn([$user1, $user2]);
+        $t1 = new Timesheet();
+        $t1->setUser($user1);
+        $t1->setActivity($activity1);
+        $t1->setBegin(new \DateTime('2026-09-01 10:00:00'));
+        $t1->setEnd(new \DateTime('2026-09-01 11:00:00'));
+        $t1->setDuration(3600);
+        $t1->setRate(150.0);
+        $t1->setInternalRate(100.0);
 
-        $activityRepo = $this->createMock(EntityRepository::class);
-        $activityRepo->method('findBy')->willReturn([$activity1, $activity2]);
+        $t2 = new Timesheet();
+        $t2->setUser($user1);
+        $t2->setActivity($activity2);
+        $t2->setBegin(new \DateTime('2026-09-02 10:00:00'));
+        $t2->setEnd(new \DateTime('2026-09-02 10:30:00'));
+        $t2->setDuration(1800);
+        $t2->setRate(75.0);
+        $t2->setInternalRate(50.0);
+
+        $t3 = new Timesheet();
+        $t3->setUser($user2);
+        $t3->setActivity($activity1);
+        $t3->setBegin(new \DateTime('2026-09-03 10:00:00'));
+        $t3->setEnd(new \DateTime('2026-09-03 12:00:00'));
+        $t3->setDuration(7200);
+        $t3->setRate(300.0);
+        $t3->setInternalRate(200.0);
+
+        $doctrineQuery = $this->createMock(AbstractQuery::class);
+        $doctrineQuery->method('getResult')->willReturn([$t1, $t2, $t3]);
 
         $em = $this->createMock(EntityManagerInterface::class);
         $em->method('getExpressionBuilder')->willReturn(new \Doctrine\ORM\Query\Expr());
-        $em->method('getRepository')->willReturnCallback(function (string $class) use ($userRepo, $activityRepo) {
-            if ($class === User::class) {
-                return $userRepo;
-            }
-            if ($class === Activity::class) {
-                return $activityRepo;
-            }
-
-            return null;
-        });
-
-        $queryResult = [
-            [
-                'user_id' => 10,
-                'activity_id' => 100,
-                'duration' => 3600,
-                'rate' => 150.0,
-                'internalRate' => 100.0,
-                'total_records' => 2,
-            ],
-            [
-                'user_id' => 10,
-                'activity_id' => 200,
-                'duration' => 1800,
-                'rate' => 75.0,
-                'internalRate' => 50.0,
-                'total_records' => 1,
-            ],
-            [
-                'user_id' => 20,
-                'activity_id' => 100,
-                'duration' => 7200,
-                'rate' => 300.0,
-                'internalRate' => 200.0,
-                'total_records' => 4,
-            ],
-        ];
-
-        $doctrineQuery = $this->createMock(AbstractQuery::class);
-        $doctrineQuery->method('getArrayResult')->willReturn($queryResult);
-
-        $qb = $this->getMockBuilder(QueryBuilder::class)
-            ->setConstructorArgs([$em])
-            ->onlyMethods(['getQuery'])
-            ->getMock();
-        $qb->method('getQuery')->willReturn($doctrineQuery);
 
         $em->method('createQueryBuilder')->willReturnCallback(function () use ($em, $doctrineQuery) {
             $qb = new class($em, $doctrineQuery) extends QueryBuilder {
@@ -290,16 +269,23 @@ class HappinessReportTest extends TestCase
         self::assertEquals(5400, $u1Data['duration']);
         self::assertEquals(225.0, $u1Data['rate']);
         self::assertEquals(150.0, $u1Data['internalRate']);
-        self::assertEquals(3, $u1Data['totalRecords']);
+        self::assertEquals(2, $u1Data['totalRecords']);
         self::assertCount(2, $u1Data['activities']);
         self::assertEquals(3600, $u1Data['activities'][100]['duration']);
         self::assertEquals(1800, $u1Data['activities'][200]['duration']);
+        self::assertSame([$t1], $u1Data['activities'][100]['timesheets']);
+        self::assertSame([$t2], $u1Data['activities'][200]['timesheets']);
+
+        $u2Data = $data['users'][20];
+        self::assertSame($user2, $u2Data['user']);
+        self::assertEquals(7200, $u2Data['duration']);
+        self::assertSame([$t3], $u2Data['activities'][100]['timesheets']);
 
         $totals = $data['totals'];
         self::assertEquals(12600, $totals['duration']);
         self::assertEquals(525.0, $totals['rate']);
         self::assertEquals(350.0, $totals['internalRate']);
-        self::assertEquals(7, $totals['totalRecords']);
+        self::assertEquals(3, $totals['totalRecords']);
     }
 
     public function testReportingTemplateStructure(): void
@@ -320,6 +306,11 @@ class HappinessReportTest extends TestCase
         self::assertStringContainsString('item.internalRate|money', $content);
         self::assertStringContainsString('sum.total', $content);
         self::assertStringContainsString('reportData.totals.duration|duration', $content);
+        self::assertStringContainsString('data-bs-toggle="collapse"', $content);
+        self::assertStringContainsString('actData.timesheets', $content);
+        self::assertStringContainsString('timesheet.duration|duration', $content);
+        self::assertStringContainsString('timesheet.rate|money', $content);
+        self::assertStringContainsString('timesheet.internalRate|money', $content);
     }
 
     public function testRoutesConfiguration(): void

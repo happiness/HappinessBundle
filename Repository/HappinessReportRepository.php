@@ -36,7 +36,8 @@ final class HappinessReportRepository
      *             duration: int,
      *             rate: float,
      *             internalRate: float,
-     *             totalRecords: int
+     *             totalRecords: int,
+     *             timesheets: array<int, Timesheet>
      *         }>
      *     }>,
      *     totals: array{duration: int, rate: float, internalRate: float, totalRecords: int}
@@ -46,18 +47,18 @@ final class HappinessReportRepository
     {
         $qb = $this->entityManager->createQueryBuilder();
 
-        $qb->select([
-            'IDENTITY(t.user) AS user_id',
-            'IDENTITY(t.activity) AS activity_id',
-            'COALESCE(SUM(t.duration), 0) AS duration',
-            'COALESCE(SUM(t.rate), 0) AS rate',
-            'COALESCE(SUM(t.internalRate), 0) AS internalRate',
-            'COUNT(t.id) AS total_records',
-        ])
-        ->from(Timesheet::class, 't')
-        ->where($qb->expr()->isNotNull('t.end'))
-        ->groupBy('user_id')
-        ->addGroupBy('activity_id');
+        $qb->select('t')
+            ->addSelect('u')
+            ->addSelect('a')
+            ->addSelect('p')
+            ->addSelect('c')
+            ->from(Timesheet::class, 't')
+            ->join('t.user', 'u')
+            ->join('t.activity', 'a')
+            ->leftJoin('t.project', 'p')
+            ->leftJoin('p.customer', 'c')
+            ->where($qb->expr()->isNotNull('t.end'))
+            ->addOrderBy('t.begin', 'DESC');
 
         if ($query->getDateRange()->getBegin() !== null) {
             $qb->andWhere($qb->expr()->gte('t.begin', ':begin'))
@@ -85,55 +86,40 @@ final class HappinessReportRepository
         }
 
         if (!empty($query->getCustomers())) {
-            $qb->leftJoin('t.project', 'p')
-               ->andWhere($qb->expr()->in('p.customer', ':customers'))
+            $qb->andWhere($qb->expr()->in('p.customer', ':customers'))
                ->setParameter('customers', $query->getCustomers());
         }
 
-        /** @var array<int, array{user_id: int|string|null, activity_id: int|string|null, duration: int|string, rate: float|string, internalRate: float|string, total_records: int|string}> $results */
-        $results = $qb->getQuery()->getArrayResult();
+        /** @var Timesheet[] $timesheets */
+        $timesheets = $qb->getQuery()->getResult();
 
-        if (empty($results)) {
+        if (empty($timesheets)) {
             return [
                 'users' => [],
                 'totals' => ['duration' => 0, 'rate' => 0.0, 'internalRate' => 0.0, 'totalRecords' => 0],
             ];
         }
 
-        $userIds = array_values(array_filter(array_unique(array_map(fn ($r) => (int) $r['user_id'], $results))));
-        $activityIds = array_values(array_filter(array_unique(array_map(fn ($r) => (int) $r['activity_id'], $results))));
-
-        $users = $this->entityManager->getRepository(User::class)->findBy(['id' => $userIds]);
-        $activities = $this->entityManager->getRepository(Activity::class)->findBy(['id' => $activityIds]);
-
-        $userMap = [];
-        foreach ($users as $user) {
-            $userMap[$user->getId()] = $user;
-        }
-
-        $activityMap = [];
-        foreach ($activities as $activity) {
-            $activityMap[$activity->getId()] = $activity;
-        }
-
         $tree = [];
         $grandTotals = ['duration' => 0, 'rate' => 0.0, 'internalRate' => 0.0, 'totalRecords' => 0];
 
-        foreach ($results as $row) {
-            $uid = (int) $row['user_id'];
-            $aid = (int) $row['activity_id'];
-            $duration = (int) $row['duration'];
-            $rate = (float) $row['rate'];
-            $internalRate = (float) $row['internalRate'];
-            $totalRecords = (int) $row['total_records'];
+        foreach ($timesheets as $timesheet) {
+            $user = $timesheet->getUser();
+            $activity = $timesheet->getActivity();
 
-            if (!isset($userMap[$uid]) || !isset($activityMap[$aid])) {
+            if ($user === null || $activity === null) {
                 continue;
             }
 
+            $uid = (int) $user->getId();
+            $aid = (int) $activity->getId();
+            $duration = (int) ($timesheet->getDuration() ?? 0);
+            $rate = (float) $timesheet->getRate();
+            $internalRate = (float) $timesheet->getInternalRate();
+
             if (!isset($tree[$uid])) {
                 $tree[$uid] = [
-                    'user' => $userMap[$uid],
+                    'user' => $user,
                     'duration' => 0,
                     'rate' => 0.0,
                     'internalRate' => 0.0,
@@ -145,20 +131,29 @@ final class HappinessReportRepository
             $tree[$uid]['duration'] += $duration;
             $tree[$uid]['rate'] += $rate;
             $tree[$uid]['internalRate'] += $internalRate;
-            $tree[$uid]['totalRecords'] += $totalRecords;
+            $tree[$uid]['totalRecords']++;
 
-            $tree[$uid]['activities'][$aid] = [
-                'activity' => $activityMap[$aid],
-                'duration' => $duration,
-                'rate' => $rate,
-                'internalRate' => $internalRate,
-                'totalRecords' => $totalRecords,
-            ];
+            if (!isset($tree[$uid]['activities'][$aid])) {
+                $tree[$uid]['activities'][$aid] = [
+                    'activity' => $activity,
+                    'duration' => 0,
+                    'rate' => 0.0,
+                    'internalRate' => 0.0,
+                    'totalRecords' => 0,
+                    'timesheets' => [],
+                ];
+            }
+
+            $tree[$uid]['activities'][$aid]['duration'] += $duration;
+            $tree[$uid]['activities'][$aid]['rate'] += $rate;
+            $tree[$uid]['activities'][$aid]['internalRate'] += $internalRate;
+            $tree[$uid]['activities'][$aid]['totalRecords']++;
+            $tree[$uid]['activities'][$aid]['timesheets'][] = $timesheet;
 
             $grandTotals['duration'] += $duration;
             $grandTotals['rate'] += $rate;
             $grandTotals['internalRate'] += $internalRate;
-            $grandTotals['totalRecords'] += $totalRecords;
+            $grandTotals['totalRecords']++;
         }
 
         return [
