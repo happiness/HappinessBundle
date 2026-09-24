@@ -12,14 +12,13 @@
                         <th>{{ 'user'|trans }} / {{ 'activity'|trans }}</th>
                         <th class="text-center w-1">{{ 'duration'|trans }}</th>
                         <th class="text-end w-1">{{ 'stats.amountTotal'|trans }}</th>
-                        <th class="text-end w-1">{{ 'internalRate'|trans }}</th>
                         <th class="text-center w-1">{{ 'entryState'|trans }}</th>
                     </tr>
                 </thead>
                 <tbody>
                 {% if reportData.users is empty %}
                     <tr>
-                        <td colspan="5" class="text-center text-muted py-4">
+                        <td colspan="4" class="text-center text-muted py-4">
                             {{ 'error.no_entries_found'|trans }}
                         </td>
                     </tr>
@@ -35,9 +34,6 @@
                             </td>
                             <td class="text-end text-nowrap">
                                 {{ item.rate|money }}
-                            </td>
-                            <td class="text-end text-nowrap">
-                                {{ item.internalRate|money }}
                             </td>
                             <td class="text-center text-nowrap">
                                 {{ item.totalRecords }}
@@ -58,15 +54,12 @@
                                 <td class="text-end text-nowrap">
                                     {{ actData.rate|money }}
                                 </td>
-                                <td class="text-end text-nowrap">
-                                    {{ actData.internalRate|money }}
-                                </td>
                                 <td class="text-center text-nowrap">
                                     {{ actData.totalRecords }}
                                 </td>
                             </tr>
                             <tr class="collapse bg-body-tertiary" id="{{ targetId }}">
-                                <td colspan="5" class="p-3">
+                                <td colspan="4" class="p-3">
                                     <div class="table-responsive">
                                         <table class="table table-sm table-hover table-bordered mb-0 bg-body">
                                             <thead>
@@ -111,7 +104,6 @@
                             <th>{{ 'sum.total'|trans }}</th>
                             <th class="text-center text-nowrap">{{ reportData.totals.duration|duration }}</th>
                             <th class="text-end text-nowrap">{{ reportData.totals.rate|money }}</th>
-                            <th class="text-end text-nowrap">{{ reportData.totals.internalRate|money }}</th>
                             <th class="text-center text-nowrap">{{ reportData.totals.totalRecords }}</th>
                         </tr>
                     </tfoot>

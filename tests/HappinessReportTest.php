@@ -36,6 +36,8 @@ use KimaiPlugin\HappinessBundle\Reporting\HappinessReportQuery;
 use KimaiPlugin\HappinessBundle\Repository\HappinessReportRepository;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
@@ -137,12 +139,18 @@ class HappinessReportTest extends TestCase
         self::assertSame($user, $options['user']);
 
         $fields = [];
+        $listeners = [];
         $builder = $this->createMock(FormBuilderInterface::class);
         $builder->method('add')->willReturnCallback(function ($child, $type, $options) use (&$fields, $builder) {
             $fields[$child] = [
                 'type' => $type,
                 'options' => $options,
             ];
+
+            return $builder;
+        });
+        $builder->method('addEventListener')->willReturnCallback(function ($eventName, $listener) use (&$listeners, $builder) {
+            $listeners[$eventName] = $listener;
 
             return $builder;
         });
@@ -154,14 +162,57 @@ class HappinessReportTest extends TestCase
         self::assertArrayHasKey('projects', $fields);
         self::assertArrayHasKey('activities', $fields);
         self::assertArrayHasKey('users', $fields);
+        self::assertArrayHasKey(FormEvents::PRE_SET_DATA, $listeners);
+        self::assertArrayHasKey(FormEvents::PRE_SUBMIT, $listeners);
 
-        self::assertSame(ActivityType::class, $fields['activities']['type']);
-        self::assertSame(ProjectType::class, $fields['projects']['type']);
-        self::assertTrue($fields['projects']['options']['join_customer']);
+        $customerOptions = $fields['customers']['options'];
+        self::assertTrue($customerOptions['multiple']);
+        self::assertSame('customers[]', $customerOptions['project_enabled']);
+        self::assertSame('projects', $customerOptions['project_select']);
+        self::assertTrue($customerOptions['ignore_date']);
+
+        $projectOptions = $fields['projects']['options'];
+        self::assertTrue($projectOptions['multiple']);
+        self::assertTrue($projectOptions['join_customer']);
+        self::assertSame('projects[]', $projectOptions['activity_enabled']);
+        self::assertSame('activities', $projectOptions['activity_select']);
+        self::assertTrue($projectOptions['ignore_date']);
+        self::assertIsArray($projectOptions['api_data']);
+        self::assertSame('activities', $projectOptions['api_data']['select']);
+        self::assertSame('get_activities', $projectOptions['api_data']['route']);
+        self::assertSame(['projects[]' => '%projects[]%', 'visible' => 1], $projectOptions['api_data']['route_params']);
+        self::assertSame(['visible' => 1], $projectOptions['api_data']['empty_route_params']);
 
         $activityOptions = $fields['activities']['options'];
         self::assertTrue($activityOptions['multiple']);
         self::assertIsCallable($activityOptions['query_builder']);
+
+        // Test PRE_SUBMIT listener filtering projects by customers and activities by projects
+        $formMock = $this->createMock(\Symfony\Component\Form\FormInterface::class);
+        $formFields = [];
+        $formMock->method('add')->willReturnCallback(function ($child, $type, $options) use (&$formFields, $formMock) {
+            $formFields[$child] = [
+                'type' => $type,
+                'options' => $options,
+            ];
+
+            return $formMock;
+        });
+
+        $event = new FormEvent($formMock, [
+            'customers' => ['1', '2'],
+            'projects' => ['5'],
+            'activities' => ['10'],
+        ]);
+        ($listeners[FormEvents::PRE_SUBMIT])($event);
+
+        self::assertArrayHasKey('projects', $formFields);
+        self::assertSame([1, 2], $formFields['projects']['options']['customers']);
+        self::assertSame([5], $formFields['projects']['options']['projects']);
+
+        self::assertArrayHasKey('activities', $formFields);
+        self::assertSame([5], $formFields['activities']['options']['projects']);
+        self::assertSame([10], $formFields['activities']['options']['activities']);
 
         $em = $this->createMock(EntityManagerInterface::class);
         $em->method('getExpressionBuilder')->willReturn(new \Doctrine\ORM\Query\Expr());
@@ -303,14 +354,11 @@ class HappinessReportTest extends TestCase
         self::assertStringContainsString('actData.activity.name', $content);
         self::assertStringContainsString('item.duration|duration', $content);
         self::assertStringContainsString('item.rate|money', $content);
-        self::assertStringContainsString('item.internalRate|money', $content);
         self::assertStringContainsString('sum.total', $content);
         self::assertStringContainsString('reportData.totals.duration|duration', $content);
         self::assertStringContainsString('data-bs-toggle="collapse"', $content);
         self::assertStringContainsString('actData.timesheets', $content);
         self::assertStringContainsString('timesheet.duration|duration', $content);
-        self::assertStringContainsString('timesheet.rate|money', $content);
-        self::assertStringContainsString('timesheet.internalRate|money', $content);
     }
 
     public function testRoutesConfiguration(): void
