@@ -10,17 +10,17 @@
                 <thead>
                     <tr>
                         <th>{{ 'user'|trans }} / {{ 'activity'|trans }}</th>
-                        <th class="text-center w-1">{{ 'entry.duration'|trans }}</th>
+                        <th class="text-center w-1">{{ 'duration'|trans }}</th>
                         <th class="text-end w-1">{{ 'stats.amountTotal'|trans }}</th>
                         <th class="text-end w-1">{{ 'internalRate'|trans }}</th>
-                        <th class="text-center w-1">{{ 'stats.amountRecords'|trans }}</th>
+                        <th class="text-center w-1">{{ 'entryState'|trans }}</th>
                     </tr>
                 </thead>
                 <tbody>
                 {% if reportData.users is empty %}
                     <tr>
                         <td colspan="5" class="text-center text-muted py-4">
-                            {{ 'stats.no_data'|trans }}
+                            {{ 'error.no_entries_found'|trans }}
                         </td>
                     </tr>
                 {% else %}

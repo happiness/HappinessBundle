@@ -310,6 +310,8 @@ class HappinessReportTest extends TestCase
         $content = (string) file_get_contents($templateFile);
         self::assertStringContainsString("{% extends 'reporting/layout.html.twig' %}", $content);
         self::assertStringContainsString('report_happiness', $content);
+        self::assertStringContainsString("'duration'|trans", $content);
+        self::assertStringContainsString("'entryState'|trans", $content);
         self::assertStringContainsString('reportData.users', $content);
         self::assertStringContainsString('item.user.displayName', $content);
         self::assertStringContainsString('actData.activity.name', $content);
