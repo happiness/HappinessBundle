@@ -65,6 +65,7 @@
                                             <thead>
                                                 <tr class="text-muted small">
                                                     <th>{{ 'date'|trans }}</th>
+                                                    <th>{{ 'customer'|trans }}</th>
                                                     <th>{{ 'project'|trans }}</th>
                                                     <th>{{ 'description'|trans }}</th>
                                                     <th class="text-center w-1">{{ 'duration'|trans }}</th>
@@ -75,6 +76,11 @@
                                                 <tr>
                                                     <td class="text-nowrap">
                                                         {{ timesheet.begin|date_short }}
+                                                    </td>
+                                                    <td>
+                                                        {% if timesheet.project is not null %}
+                                                            {{ timesheet.project.customer.name }}
+                                                        {% endif %}
                                                     </td>
                                                     <td>
                                                         {% if timesheet.project is not null %}
