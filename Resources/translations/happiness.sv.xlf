@@ -1,42 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
-  <file source-language="en" target-language="en" datatype="plaintext" original="happiness.en.xlf">
+  <file source-language="en" target-language="sv" datatype="plaintext" original="happiness.sv.xlf">
     <body>
-      <trans-unit id="happiness_report" resname="report_happiness">
+      <trans-unit id="report_happiness" resname="report_happiness">
         <source>report_happiness</source>
-        <target>Happiness report (by user &amp; activity)</target>
+        <target>Happiness-rapport (per användare &amp; aktivitet)</target>
       </trans-unit>
       <trans-unit id="happiness.retainer.title" resname="happiness.retainer.title">
         <source>happiness.retainer.title</source>
-        <target>Monthly retainer hour</target>
+        <target>Månatlig retainertimme</target>
       </trans-unit>
       <trans-unit id="happiness.retainer.enabled" resname="happiness.retainer.enabled">
         <source>happiness.retainer.enabled</source>
-        <target>Enable monthly retainer booking</target>
+        <target>Aktivera automatisk månadsbokning</target>
       </trans-unit>
       <trans-unit id="happiness.retainer.day_of_month" resname="happiness.retainer.day_of_month">
         <source>happiness.retainer.day_of_month</source>
-        <target>Day of month to book (1-28)</target>
+        <target>Dag i månaden för bokning (1-28)</target>
       </trans-unit>
       <trans-unit id="happiness.retainer.hours" resname="happiness.retainer.hours">
         <source>happiness.retainer.hours</source>
-        <target>Hours to book</target>
+        <target>Antal timmar att boka</target>
       </trans-unit>
       <trans-unit id="happiness.retainer.description" resname="happiness.retainer.description">
         <source>happiness.retainer.description</source>
-        <target>Description of the booking</target>
+        <target>Beskrivning av bokningen</target>
       </trans-unit>
       <trans-unit id="happiness.retainer.user" resname="happiness.retainer.user">
         <source>happiness.retainer.user</source>
-        <target>Username of the user that makes the booking</target>
+        <target>Användarnamn för användaren som bokar</target>
       </trans-unit>
       <trans-unit id="happiness.retainer.activity_id" resname="happiness.retainer.activity_id">
         <source>happiness.retainer.activity_id</source>
-        <target>ID of the activity to book on</target>
+        <target>ID för aktiviteten som ska bokas på</target>
       </trans-unit>
       <trans-unit id="happiness.monthly_planning" resname="happiness.monthly_planning">
         <source>happiness.monthly_planning</source>
-        <target>Planning work for the month (%hours% h)</target>
+        <target>Planeringsarbete för månaden (%hours% h)</target>
       </trans-unit>
     </body>
   </file>

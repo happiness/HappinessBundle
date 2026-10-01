@@ -13,6 +13,7 @@ Use this guide when working on the **HappinessBundle** plugin in `var/plugins/Ha
   - Computes and displays daily duration totals alongside day names and localized dates.
   - Visual distinctions and badges for "today" and "weekend" rows.
   - Custom Twig extension (`happiness_this_week_range`) for working with current week date ranges.
+  - Monthly retainer booking: project checkbox (meta field `happiness_monthly_planning`), settings section "Monthly retainer hour" (day 1-28, hours, description, username, activity ID) and console command `happiness:retainer:book` (run daily from cron; only books on the configured day; `--month=YYYY-MM`, `--dry-run`, `--force`; idempotent, no backfill).
   - Complete feature parity with Kimai's core datatable (modal editing, batch multi-updates, sorting, pagination, recording indicators, daily rate summaries).
 - **Scope Boundary**: All bundle templates, extensions, configuration, and tests must remain strictly isolated within `var/plugins/HappinessBundle/`. **Never modify Kimai core files** in `src/`, `templates/`, `config/`, or `migrations/`.
 
@@ -42,6 +43,9 @@ var/plugins/HappinessBundle/
 │   └── views/
 │       └── timesheet/
 │           └── index.html.twig        # Overridden core timesheet view with weekday grouping
+├── Command/RetainerBookCommand.php    # happiness:retainer:book
+├── Configuration/RetainerConfiguration.php  # Typed settings access + defaults
+├── Service/RetainerBookingService.php # Creates the timesheets (idempotent)
 └── Twig/
     └── HappinessTwigExtension.php     # Custom Twig functions (e.g. happiness_this_week_range)
 ```

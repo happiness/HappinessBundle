@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace KimaiPlugin\HappinessBundle\DependencyInjection;
 
 use App\Plugin\AbstractPluginExtension;
+use KimaiPlugin\HappinessBundle\Configuration\RetainerConfiguration;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
@@ -38,5 +39,7 @@ class HappinessExtension extends AbstractPluginExtension implements PrependExten
     {
         $loader = new YamlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
         $loader->load('services.yaml');
+
+        $this->registerBundleConfiguration($container, ['retainer' => RetainerConfiguration::DEFAULTS]);
     }
 }
