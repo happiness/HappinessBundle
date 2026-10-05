@@ -7,6 +7,9 @@ services:
     KimaiPlugin\HappinessBundle\:
         resource: '../../*'
         exclude:
+            - '../../Entity/'
+            - '../../Migrations/'
+            - '../../Model/'
             - '../../DependencyInjection/'
             - '../../Reporting/'
             - '../../Resources/'

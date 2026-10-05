@@ -38,6 +38,58 @@
         <source>happiness.monthly_planning</source>
         <target>Planeringsarbete för månaden (%hours% h)</target>
       </trans-unit>
+      <trans-unit id="happiness.retainer_balance.enabled" resname="happiness.retainer_balance.enabled">
+        <source>happiness.retainer_balance.enabled</source>
+        <target>Retainerprojekt (timsaldo)</target>
+      </trans-unit>
+      <trans-unit id="happiness.retainer_balance.hours" resname="happiness.retainer_balance.hours">
+        <source>happiness.retainer_balance.hours</source>
+        <target>Retainertimmar per månad</target>
+      </trans-unit>
+      <trans-unit id="happiness.retainer_balance.start" resname="happiness.retainer_balance.start">
+        <source>happiness.retainer_balance.start</source>
+        <target>Saldot startar i månad</target>
+      </trans-unit>
+      <trans-unit id="happiness.retainer_balance.start_help" resname="happiness.retainer_balance.start_help">
+        <source>happiness.retainer_balance.start_help</source>
+        <target>Saldot räknas från och med denna månad; krävs för att få ett saldo.</target>
+      </trans-unit>
+      <trans-unit id="happiness.retainer_balance.title" resname="happiness.retainer_balance.title">
+        <source>happiness.retainer_balance.title</source>
+        <target>Retainersaldo</target>
+      </trans-unit>
+      <trans-unit id="happiness.retainer_balance.month" resname="happiness.retainer_balance.month">
+        <source>happiness.retainer_balance.month</source>
+        <target>Månad</target>
+      </trans-unit>
+      <trans-unit id="happiness.retainer_balance.opening" resname="happiness.retainer_balance.opening">
+        <source>happiness.retainer_balance.opening</source>
+        <target>Ingående saldo</target>
+      </trans-unit>
+      <trans-unit id="happiness.retainer_balance.logged" resname="happiness.retainer_balance.logged">
+        <source>happiness.retainer_balance.logged</source>
+        <target>Registrerat</target>
+      </trans-unit>
+      <trans-unit id="happiness.retainer_balance.adjustment" resname="happiness.retainer_balance.adjustment">
+        <source>happiness.retainer_balance.adjustment</source>
+        <target>Justering</target>
+      </trans-unit>
+      <trans-unit id="happiness.retainer_balance.closing" resname="happiness.retainer_balance.closing">
+        <source>happiness.retainer_balance.closing</source>
+        <target>Saldo</target>
+      </trans-unit>
+      <trans-unit id="happiness.retainer_balance.no_start" resname="happiness.retainer_balance.no_start">
+        <source>happiness.retainer_balance.no_start</source>
+        <target>Ingen startmånad angiven på projektet</target>
+      </trans-unit>
+      <trans-unit id="happiness.retainer_balance.explanation" resname="happiness.retainer_balance.explanation">
+        <source>happiness.retainer_balance.explanation</source>
+        <target>%hours% timmar per månad sedan %start%. Saldot räknas fram från tidrapporterna, så ändringar där syns direkt. Justeringar läggs på månadens saldo, till exempel -20 för att fakturera 20 timmar av en skuld.</target>
+      </trans-unit>
+      <trans-unit id="happiness.retainer_balance.adjust_invalid" resname="happiness.retainer_balance.adjust_invalid">
+        <source>happiness.retainer_balance.adjust_invalid</source>
+        <target>Ogiltig månad eller antal timmar.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" target-language="sv" datatype="plaintext" original="messages.sv.xlf">
+    <body>
+    <trans-unit id="happiness.monthly_planning" resname="happiness.monthly_planning">
+      <source>happiness.monthly_planning</source>
+      <target>Planeringsarbete för månaden</target>
+    </trans-unit>
+    <trans-unit id="happiness.retainer_balance.enabled" resname="happiness.retainer_balance.enabled">
+      <source>happiness.retainer_balance.enabled</source>
+      <target>Retainerprojekt (timsaldo)</target>
+    </trans-unit>
+    <trans-unit id="happiness.retainer_balance.hours" resname="happiness.retainer_balance.hours">
+      <source>happiness.retainer_balance.hours</source>
+      <target>Retainertimmar per månad</target>
+    </trans-unit>
+    <trans-unit id="happiness.retainer_balance.start" resname="happiness.retainer_balance.start">
+      <source>happiness.retainer_balance.start</source>
+      <target>Saldot startar i månad</target>
+    </trans-unit>
+    </body>
+  </file>
+</xliff>

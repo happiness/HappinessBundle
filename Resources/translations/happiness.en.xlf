@@ -38,6 +38,58 @@
         <source>happiness.monthly_planning</source>
         <target>Planning work for the month (%hours% h)</target>
       </trans-unit>
+      <trans-unit id="happiness.retainer_balance.enabled" resname="happiness.retainer_balance.enabled">
+        <source>happiness.retainer_balance.enabled</source>
+        <target>Retainer project (hour balance)</target>
+      </trans-unit>
+      <trans-unit id="happiness.retainer_balance.hours" resname="happiness.retainer_balance.hours">
+        <source>happiness.retainer_balance.hours</source>
+        <target>Retainer hours per month</target>
+      </trans-unit>
+      <trans-unit id="happiness.retainer_balance.start" resname="happiness.retainer_balance.start">
+        <source>happiness.retainer_balance.start</source>
+        <target>Balance starts in month</target>
+      </trans-unit>
+      <trans-unit id="happiness.retainer_balance.start_help" resname="happiness.retainer_balance.start_help">
+        <source>happiness.retainer_balance.start_help</source>
+        <target>The balance is calculated from this month; required for a balance.</target>
+      </trans-unit>
+      <trans-unit id="happiness.retainer_balance.title" resname="happiness.retainer_balance.title">
+        <source>happiness.retainer_balance.title</source>
+        <target>Retainer balance</target>
+      </trans-unit>
+      <trans-unit id="happiness.retainer_balance.month" resname="happiness.retainer_balance.month">
+        <source>happiness.retainer_balance.month</source>
+        <target>Month</target>
+      </trans-unit>
+      <trans-unit id="happiness.retainer_balance.opening" resname="happiness.retainer_balance.opening">
+        <source>happiness.retainer_balance.opening</source>
+        <target>Carried in</target>
+      </trans-unit>
+      <trans-unit id="happiness.retainer_balance.logged" resname="happiness.retainer_balance.logged">
+        <source>happiness.retainer_balance.logged</source>
+        <target>Logged</target>
+      </trans-unit>
+      <trans-unit id="happiness.retainer_balance.adjustment" resname="happiness.retainer_balance.adjustment">
+        <source>happiness.retainer_balance.adjustment</source>
+        <target>Adjustment</target>
+      </trans-unit>
+      <trans-unit id="happiness.retainer_balance.closing" resname="happiness.retainer_balance.closing">
+        <source>happiness.retainer_balance.closing</source>
+        <target>Balance</target>
+      </trans-unit>
+      <trans-unit id="happiness.retainer_balance.no_start" resname="happiness.retainer_balance.no_start">
+        <source>happiness.retainer_balance.no_start</source>
+        <target>No start month set on the project</target>
+      </trans-unit>
+      <trans-unit id="happiness.retainer_balance.explanation" resname="happiness.retainer_balance.explanation">
+        <source>happiness.retainer_balance.explanation</source>
+        <target>%hours% hours per month since %start%. The balance is calculated from the timesheets, so changes to them show up immediately. Adjustments are added to the balance of the month, for example -20 to invoice 20 hours of a deficit.</target>
+      </trans-unit>
+      <trans-unit id="happiness.retainer_balance.adjust_invalid" resname="happiness.retainer_balance.adjust_invalid">
+        <source>happiness.retainer_balance.adjust_invalid</source>
+        <target>Invalid month or number of hours.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

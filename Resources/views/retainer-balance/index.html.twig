@@ -1,0 +1,46 @@
+{% extends 'base.html.twig' %}
+{% import _self as macros %}
+
+{% block page_title %}{{ 'happiness.retainer_balance.title'|trans({}, 'happiness') }}{% endblock %}
+{% block page_subtitle %}{{ 'happiness.retainer_balance.title'|trans({}, 'happiness') }}{% endblock %}
+
+{% macro hours(value) %}{{ (value|round(2)) ~ ' h' }}{% endmacro %}
+
+{% block main %}
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-hover table-vcenter card-table">
+                <thead>
+                    <tr>
+                        <th>{{ 'project'|trans }}</th>
+                        <th class="text-end">{{ 'happiness.retainer_balance.hours'|trans({}, 'happiness') }}</th>
+                        <th class="text-end">{{ 'happiness.retainer_balance.opening'|trans({}, 'happiness') }}</th>
+                        <th class="text-end">{{ 'happiness.retainer_balance.logged'|trans({}, 'happiness') }}</th>
+                        <th class="text-end">{{ 'happiness.retainer_balance.closing'|trans({}, 'happiness') }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for row in rows %}
+                    <tr>
+                        <td>
+                            <a href="{{ path('happiness_retainer_balance_project', {id: row.project.id}) }}">{{ row.project.customer.name }} / {{ row.project.name }}</a>
+                        </td>
+                        <td class="text-end">{{ macros.hours(row.hours) }}</td>
+                        {% if row.current is null %}
+                            <td colspan="3" class="text-end text-muted">{{ 'happiness.retainer_balance.no_start'|trans({}, 'happiness') }}</td>
+                        {% else %}
+                            <td class="text-end">{{ macros.hours(row.current.opening) }}</td>
+                            <td class="text-end">{{ macros.hours(row.current.logged) }}</td>
+                            <td class="text-end {{ row.current.closing < 0 ? 'text-danger' : '' }}"><strong>{{ macros.hours(row.current.closing) }}</strong></td>
+                        {% endif %}
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center text-muted py-4">{{ 'error.no_entries_found'|trans }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

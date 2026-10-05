@@ -1,0 +1,58 @@
+{% extends 'base.html.twig' %}
+{% import _self as macros %}
+
+{% block page_title %}{{ 'happiness.retainer_balance.title'|trans({}, 'happiness') }}{% endblock %}
+{% block page_subtitle %}{{ project.customer.name }} / {{ project.name }}{% endblock %}
+
+{% macro hours(value) %}{{ (value|round(2)) ~ ' h' }}{% endmacro %}
+
+{% block main %}
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">{{ project.customer.name }} / {{ project.name }}</h3>
+            <div class="card-actions">
+                <a href="{{ path('happiness_retainer_balance') }}" class="btn">{{ 'back'|trans }}</a>
+            </div>
+        </div>
+        <div class="card-body text-muted">
+            {{ 'happiness.retainer_balance.explanation'|trans({'%hours%': hours|round(2), '%start%': start}, 'happiness') }}
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover table-vcenter card-table">
+                <thead>
+                    <tr>
+                        <th>{{ 'happiness.retainer_balance.month'|trans({}, 'happiness') }}</th>
+                        <th class="text-end">{{ 'happiness.retainer_balance.opening'|trans({}, 'happiness') }}</th>
+                        <th class="text-end">{{ 'happiness.retainer_balance.hours'|trans({}, 'happiness') }}</th>
+                        <th class="text-end">{{ 'happiness.retainer_balance.logged'|trans({}, 'happiness') }}</th>
+                        <th class="text-end">{{ 'happiness.retainer_balance.adjustment'|trans({}, 'happiness') }}</th>
+                        <th class="text-end">{{ 'happiness.retainer_balance.closing'|trans({}, 'happiness') }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for month in months %}
+                    <tr>
+                        <td>{{ month.month }}</td>
+                        <td class="text-end">{{ macros.hours(month.opening) }}</td>
+                        <td class="text-end">{{ macros.hours(month.retainer) }}</td>
+                        <td class="text-end">{{ macros.hours(month.logged) }}</td>
+                        <td class="text-end">
+                            <form method="post" action="{{ path('happiness_retainer_balance_adjust', {id: project.id}) }}" class="d-inline-flex gap-1 justify-content-end">
+                                <input type="hidden" name="_token" value="{{ csrf_token(csrf_id) }}">
+                                <input type="hidden" name="month" value="{{ month.month }}">
+                                <input type="number" name="hours" value="{{ month.adjustment|round(2) }}" step="0.25" class="form-control form-control-sm text-end" style="width: 6rem" aria-label="{{ 'happiness.retainer_balance.adjustment'|trans({}, 'happiness') }} {{ month.month }}">
+                                <button type="submit" class="btn btn-sm">{{ 'save'|trans }}</button>
+                            </form>
+                        </td>
+                        <td class="text-end {{ month.closing < 0 ? 'text-danger' : '' }}"><strong>{{ macros.hours(month.closing) }}</strong></td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-4">{{ 'happiness.retainer_balance.no_start'|trans({}, 'happiness') }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}
