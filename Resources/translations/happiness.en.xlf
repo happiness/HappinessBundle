@@ -98,6 +98,10 @@
         <source>happiness.retainer_balance.text_help</source>
         <target>Shown as the first row of the Fortnox time report. Leave empty for the default text. Tokens: {hours}, {logged}, {opening}, {adjustment}, {closing}, {month}.</target>
       </trans-unit>
+      <trans-unit id="happiness.suggestions.title" resname="happiness.suggestions.title">
+        <source>happiness.suggestions.title</source>
+        <target>Frequently used</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
