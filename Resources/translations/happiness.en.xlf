@@ -90,6 +90,14 @@
         <source>happiness.retainer_balance.adjust_invalid</source>
         <target>Invalid month or number of hours.</target>
       </trans-unit>
+      <trans-unit id="happiness.retainer_balance.text" resname="happiness.retainer_balance.text">
+        <source>happiness.retainer_balance.text</source>
+        <target>Text on the Fortnox time report</target>
+      </trans-unit>
+      <trans-unit id="happiness.retainer_balance.text_help" resname="happiness.retainer_balance.text_help">
+        <source>happiness.retainer_balance.text_help</source>
+        <target>Shown as the first row of the Fortnox time report. Leave empty for the default text. Tokens: {hours}, {logged}, {opening}, {adjustment}, {closing}, {month}.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

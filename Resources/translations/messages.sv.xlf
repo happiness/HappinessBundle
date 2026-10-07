@@ -18,6 +18,10 @@
       <source>happiness.retainer_balance.start</source>
       <target>Saldot startar i månad</target>
     </trans-unit>
+      <trans-unit id="happiness.retainer_balance.text" resname="happiness.retainer_balance.text">
+        <source>happiness.retainer_balance.text</source>
+        <target>Text på tidrapporten till Fortnox</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

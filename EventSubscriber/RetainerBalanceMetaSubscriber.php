@@ -18,6 +18,7 @@ use KimaiPlugin\HappinessBundle\Configuration\RetainerBalanceFields;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Validator\Constraints\PositiveOrZero;
 use Symfony\Component\Validator\Constraints\Regex;
@@ -64,6 +65,13 @@ final class RetainerBalanceMetaSubscriber implements EventSubscriberInterface
             ->setOptions($this->options(['help' => 'happiness.retainer_balance.start_help', 'attr' => [self::ATTRIBUTE => 'start', 'placeholder' => 'YYYY-MM', 'maxlength' => 7]]))
             ->addConstraint(new Regex(pattern: RetainerBalanceFields::START_PATTERN, message: 'Use the format YYYY-MM, for example 2026-10.'))
             ->setIsVisible(true));
+
+        $project->setMetaField((new ProjectMeta())
+            ->setName(RetainerBalanceFields::TEXT)
+            ->setLabel('happiness.retainer_balance.text')
+            ->setType(TextareaType::class)
+            ->setOptions($this->options(['help' => 'happiness.retainer_balance.text_help', 'attr' => [self::ATTRIBUTE => 'text', 'rows' => 4]]))
+            ->setIsVisible(true));
     }
 
     public function onJavascript(ThemeEvent $event): void
@@ -98,7 +106,9 @@ final class RetainerBalanceMetaSubscriber implements EventSubscriberInterface
                             });
                         }
                     }
-                    (wrapper ? [wrapper] : rows).forEach(function (el) {
+                    var text = document.querySelector(selector('text'));
+                    var textRow = text ? text.closest('.mb-3') : null;
+                    (wrapper ? [wrapper] : rows).concat(textRow ? [textRow] : []).forEach(function (el) {
                         el.classList.toggle('d-none', !toggle.checked);
                     });
                 };

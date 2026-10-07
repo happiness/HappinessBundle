@@ -65,6 +65,14 @@ final class RetainerBalanceService
     }
 
     /**
+     * The text for the first row of the Fortnox time report, empty if the default text should be used.
+     */
+    public function getText(Project $project): string
+    {
+        return trim((string) $project->getMetaField(RetainerBalanceFields::TEXT)?->getValue());
+    }
+
+    /**
      * The first month (YYYY-MM) of the balance, null if the project has none configured.
      */
     public function getStartMonth(Project $project): ?string

@@ -18,6 +18,10 @@
       <source>happiness.retainer_balance.start</source>
       <target>Balance starts in month</target>
     </trans-unit>
+      <trans-unit id="happiness.retainer_balance.text" resname="happiness.retainer_balance.text">
+        <source>happiness.retainer_balance.text</source>
+        <target>Text on the Fortnox time report</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

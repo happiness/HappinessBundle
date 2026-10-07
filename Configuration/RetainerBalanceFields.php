@@ -21,6 +21,7 @@ final class RetainerBalanceFields
     public const ENABLED = 'happiness_retainer';
     public const HOURS = 'happiness_retainer_hours';
     public const START = 'happiness_retainer_start';
+    public const TEXT = 'happiness_retainer_text';
 
     public const START_PATTERN = '/^\d{4}-(0[1-9]|1[0-2])$/';
 }

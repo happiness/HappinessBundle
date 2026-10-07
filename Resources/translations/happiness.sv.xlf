@@ -90,6 +90,14 @@
         <source>happiness.retainer_balance.adjust_invalid</source>
         <target>Ogiltig månad eller antal timmar.</target>
       </trans-unit>
+      <trans-unit id="happiness.retainer_balance.text" resname="happiness.retainer_balance.text">
+        <source>happiness.retainer_balance.text</source>
+        <target>Text på tidrapporten till Fortnox</target>
+      </trans-unit>
+      <trans-unit id="happiness.retainer_balance.text_help" resname="happiness.retainer_balance.text_help">
+        <source>happiness.retainer_balance.text_help</source>
+        <target>Visas som första rad på tidrapporten till Fortnox. Lämna tomt för standardtexten. Variabler: {hours}, {logged}, {opening}, {adjustment}, {closing}, {month}.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
