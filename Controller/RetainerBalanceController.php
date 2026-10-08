@@ -80,10 +80,11 @@ final class RetainerBalanceController extends AbstractController
         $hours = str_replace(',', '.', trim((string) $request->request->get('hours')));
         $start = $this->service->getStartMonth($project);
 
-        if (preg_match(RetainerBalanceFields::START_PATTERN, $month) !== 1 || $start === null || $month < $start || !is_numeric($hours)) {
+        // an empty field removes the override, zero is a value like any other
+        if (preg_match(RetainerBalanceFields::START_PATTERN, $month) !== 1 || $start === null || $month < $start || ($hours !== '' && !is_numeric($hours))) {
             $this->addFlash('error', $this->translator->trans('happiness.retainer_balance.adjust_invalid', [], 'happiness'));
         } else {
-            $adjustments->setAdjustment($project, $month, round((float) $hours, 2));
+            $adjustments->setAdjustment($project, $month, $hours === '' ? null : round((float) $hours, 2));
             $this->flashSuccess('action.update.success');
         }
 

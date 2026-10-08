@@ -27,7 +27,7 @@ class RetainerAdjustmentRepository extends ServiceEntityRepository
     }
 
     /**
-     * @return array<string, float> adjustment hours indexed by month (YYYY-MM)
+     * @return array<string, float> balance carried in, indexed by month (YYYY-MM)
      */
     public function findByProject(Project $project): array
     {
@@ -40,14 +40,14 @@ class RetainerAdjustmentRepository extends ServiceEntityRepository
     }
 
     /**
-     * Sets the adjustment of a month, a value of zero removes it.
+     * Replaces the balance carried in to a month, null removes the override (zero is a value like any other).
      */
-    public function setAdjustment(Project $project, string $month, float $hours): void
+    public function setAdjustment(Project $project, string $month, ?float $hours): void
     {
         $entityManager = $this->getEntityManager();
         $adjustment = $this->findOneBy(['project' => $project, 'month' => $month]);
 
-        if ($hours === 0.0) {
+        if ($hours === null) {
             if ($adjustment !== null) {
                 $entityManager->remove($adjustment);
             }

@@ -40,7 +40,7 @@
                             <form method="post" action="{{ path('happiness_retainer_balance_adjust', {id: project.id}) }}" class="d-inline-flex gap-1 justify-content-end">
                                 <input type="hidden" name="_token" value="{{ csrf_token(csrf_id) }}">
                                 <input type="hidden" name="month" value="{{ month.month }}">
-                                <input type="number" name="hours" value="{{ month.adjustment|round(2) }}" step="0.25" class="form-control form-control-sm text-end" style="width: 6rem" aria-label="{{ 'happiness.retainer_balance.adjustment'|trans({}, 'happiness') }} {{ month.month }}">
+                                <input type="number" name="hours" value="{{ month.override is null ? '' : month.override|round(2) }}" placeholder="{{ month.carried|round(2) }}" step="0.25" class="form-control form-control-sm text-end" style="width: 6rem" aria-label="{{ 'happiness.retainer_balance.adjustment'|trans({}, 'happiness') }} {{ month.month }}">
                                 <button type="submit" class="btn btn-sm">{{ 'save'|trans }}</button>
                             </form>
                         </td>

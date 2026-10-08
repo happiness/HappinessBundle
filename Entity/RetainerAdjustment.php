@@ -17,7 +17,7 @@ use Doctrine\ORM\Mapping as ORM;
 use KimaiPlugin\HappinessBundle\Repository\RetainerAdjustmentRepository;
 
 /**
- * A manual change (in hours, positive or negative) of the retainer balance in one month.
+ * A manual replacement (in hours, negative is a deficit) of the retainer balance carried in to one month.
  */
 #[ORM\Table(name: 'kimai2_happiness_retainer_adjustments')]
 #[ORM\UniqueConstraint(name: 'UNIQ_HAPPINESS_RETAINER_ADJ', columns: ['project_id', 'month'])]

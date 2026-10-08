@@ -25,6 +25,11 @@ use KimaiPlugin\HappinessBundle\Repository\RetainerAdjustmentRepository;
  */
 final class RetainerBalanceService
 {
+    /**
+     * Time booked on an activity with this name (any case) is not counted against the retainer.
+     */
+    public const EXCLUDED_ACTIVITY = 'Faktureras ej';
+
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly RetainerAdjustmentRepository $adjustments,
@@ -61,7 +66,7 @@ final class RetainerBalanceService
 
     public function getHoursPerMonth(Project $project): float
     {
-        return max(0.0, (float) $project->getMetaField(RetainerBalanceFields::HOURS)?->getValue());
+        return (float) $project->getMetaField(RetainerBalanceFields::HOURS)?->getValue();
     }
 
     /**
@@ -111,10 +116,13 @@ final class RetainerBalanceService
         $rows = $this->entityManager->createQueryBuilder()
             ->select('t.begin AS begin', 't.duration AS duration')
             ->from(Timesheet::class, 't')
+            ->join('t.activity', 'a')
             ->where('t.project = :project')
+            ->andWhere('LOWER(a.name) <> :excluded')
             ->andWhere('t.begin >= :from')
             ->andWhere('t.end IS NOT NULL')
             ->setParameter('project', $project)
+            ->setParameter('excluded', mb_strtolower(self::EXCLUDED_ACTIVITY))
             ->setParameter('from', new \DateTime($start . '-01 00:00:00'))
             ->getQuery()
             ->getArrayResult();

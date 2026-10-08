@@ -16,11 +16,14 @@ use KimaiPlugin\HappinessBundle\Model\RetainerMonth;
 /**
  * Builds the text about the retainer balance that is shown on the first row of the Fortnox time report.
  *
- * Available tokens in a project's own text: {hours}, {logged}, {opening}, {adjustment}, {closing} and {month}.
+ * Available tokens in a project's own text: {hours}, {logged}, {opening}, {adjustment}, {closing} and {month}
+ * ({month} is the Swedish name of the reported month, {adjustment} the change an override made to {opening}).
  */
 final class RetainerSummaryFormatter
 {
-    public const DEFAULT_TEXT = "RETAINER - {hours} timmar/mån enligt avtal.\n{logged} tim nedlagt\nNi hade {opening} tim sparat från förra månaden, det innebär att {closing} tim sparas till nästkommande månaders retainers";
+    public const DEFAULT_TEXT = "Retainer för {month}: {hours} tim enligt överenskommelse.\nTimsaldo från förra månaden: {opening} tim\nNedlagd tid för månaden: {logged} tim\nTimsaldo efter nedlagd tid: {closing} tim\n\nSe bifogad tidsrapport";
+
+    private const MONTHS = ['januari', 'februari', 'mars', 'april', 'maj', 'juni', 'juli', 'augusti', 'september', 'oktober', 'november', 'december'];
 
     /**
      * @param list<RetainerMonth> $months the balance up to and including the reported month
@@ -38,13 +41,18 @@ final class RetainerSummaryFormatter
         $text = strtr($text, [
             '{hours}' => $this->hours($item->retainer),
             '{logged}' => $this->hours($item->logged),
-            '{opening}' => $this->hours($item->opening),
-            '{adjustment}' => $this->hours($item->adjustment),
+            '{opening}' => $this->hours($item->getOpening()),
+            '{adjustment}' => $this->hours($item->getAdjustment()),
             '{closing}' => $this->hours($item->getClosing()),
-            '{month}' => $item->month,
+            '{month}' => $this->monthName($item->month),
         ]);
 
-        return preg_split('/\R/', trim($text)) ?: [];
+        return preg_split('/\R/', rtrim(trim($text, "\r\n"))) ?: [];
+    }
+
+    private function monthName(string $month): string
+    {
+        return self::MONTHS[(int) substr($month, 5, 2) - 1] ?? $month;
     }
 
     /**

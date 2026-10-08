@@ -20,7 +20,6 @@ use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Validator\Constraints\PositiveOrZero;
 use Symfony\Component\Validator\Constraints\Regex;
 
 /**
@@ -54,8 +53,7 @@ final class RetainerBalanceMetaSubscriber implements EventSubscriberInterface
             ->setName(RetainerBalanceFields::HOURS)
             ->setLabel('happiness.retainer_balance.hours')
             ->setType(NumberType::class)
-            ->setOptions($this->options(['scale' => 2, 'html5' => true, 'attr' => [self::ATTRIBUTE => 'hours', 'min' => 0, 'step' => 0.25]]))
-            ->addConstraint(new PositiveOrZero())
+            ->setOptions($this->options(['scale' => 2, 'html5' => true, 'attr' => [self::ATTRIBUTE => 'hours', 'step' => 0.25]]))
             ->setIsVisible(true));
 
         $project->setMetaField((new ProjectMeta())

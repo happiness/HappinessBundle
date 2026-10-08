@@ -28,31 +28,54 @@ class RetainerBalanceCalculatorTest extends TestCase
 
         self::assertCount(3, $months);
         self::assertSame('2026-08', $months[0]->month);
-        self::assertSame(0.0, $months[0]->opening);
+        self::assertSame(0.0, $months[0]->getOpening());
         self::assertSame(5.0, $months[0]->getClosing());
-        self::assertSame(5.0, $months[1]->opening);
+        self::assertSame(5.0, $months[1]->getOpening());
         self::assertSame(0.0, $months[1]->getClosing());
-        self::assertSame(0.0, $months[2]->opening);
+        self::assertSame(0.0, $months[2]->getOpening());
         self::assertSame(10.0, $months[2]->getClosing());
     }
 
-    public function testMatchesTicketExample(): void
+    public function testOverageIsDeductedFromTheBalance(): void
     {
-        // 102 hours saved, 40 per month, 35 logged: 107 are saved
-        $months = (new RetainerBalanceCalculator())->calculate('2026-09', '2026-10', 40.0, ['2026-10' => 35 * 3600], ['2026-09' => 102.0 - 40.0]);
+        // balance 5, retainer 5 per month, 12 hours logged: 7 over, 5 - 7 = -2
+        $months = (new RetainerBalanceCalculator())->calculate('2026-10', '2026-11', 5.0, ['2026-11' => 12 * 3600], ['2026-11' => 5.0]);
 
-        self::assertSame(102.0, $months[0]->getClosing());
-        self::assertSame(107.0, $months[1]->getClosing());
+        self::assertSame(5.0, $months[1]->getOpening());
+        self::assertSame(-2.0, $months[1]->getClosing());
     }
 
-    public function testAdjustmentsAndDeficit(): void
+    public function testOverrideReplacesTheCalculatedBalanceAndIsCarriedOn(): void
     {
-        $months = (new RetainerBalanceCalculator())->calculate('2026-11', '2027-01', 10.0, ['2026-11' => 50 * 3600], ['2026-12' => 30.0]);
+        // October 8 - 6.5 = 1.5, but the balance carried in is set to -5.5
+        $months = (new RetainerBalanceCalculator())->calculate('2026-09', '2026-11', 8.0, ['2026-09' => 6 * 3600, '2026-10' => (int) (6.5 * 3600)], ['2026-10' => -5.5]);
 
-        self::assertSame(-40.0, $months[0]->getClosing());
-        self::assertSame(30.0, $months[1]->adjustment);
-        self::assertSame(0.0, $months[1]->getClosing());
-        self::assertSame(10.0, $months[2]->getClosing());
+        self::assertSame(2.0, $months[0]->getClosing());
+        self::assertSame(2.0, $months[1]->carried);
+        self::assertSame(-5.5, $months[1]->getOpening());
+        self::assertSame(-7.5, $months[1]->getAdjustment());
+        self::assertSame(-4.0, $months[1]->getClosing());
+        // the override is not added again, the next month continues from the closing balance
+        self::assertSame(-4.0, $months[2]->getOpening());
+        self::assertSame(4.0, $months[2]->getClosing());
+    }
+
+    public function testOverrideOfZeroIsAValue(): void
+    {
+        $months = (new RetainerBalanceCalculator())->calculate('2026-10', '2026-11', 10.0, ['2026-10' => 30 * 3600], ['2026-11' => 0.0]);
+
+        self::assertSame(-20.0, $months[0]->getClosing());
+        self::assertSame(0.0, $months[1]->override);
+        self::assertSame(0.0, $months[1]->getOpening());
+        self::assertSame(10.0, $months[1]->getClosing());
+    }
+
+    public function testNegativeRetainerHours(): void
+    {
+        $months = (new RetainerBalanceCalculator())->calculate('2026-10', '2026-11', -2.0, [], []);
+
+        self::assertSame(-2.0, $months[0]->getClosing());
+        self::assertSame(-4.0, $months[1]->getClosing());
     }
 
     public function testRollsOverTheYear(): void

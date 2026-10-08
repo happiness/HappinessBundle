@@ -22,25 +22,25 @@ final class RetainerBalanceCalculator
      * @param string $start first month (YYYY-MM)
      * @param string $until last month (YYYY-MM), inclusive
      * @param array<string, int> $loggedSeconds logged seconds indexed by month
-     * @param array<string, float> $adjustments adjustment hours indexed by month
+     * @param array<string, float> $overrides balance carried in to a month that replaces the calculated one, indexed by month
      *
      * @return list<RetainerMonth> ordered from the start month to the last month
      */
-    public function calculate(string $start, string $until, float $retainerHours, array $loggedSeconds, array $adjustments): array
+    public function calculate(string $start, string $until, float $retainerHours, array $loggedSeconds, array $overrides): array
     {
         $months = [];
-        $opening = 0.0;
+        $carried = 0.0;
 
         for ($month = $start; $month <= $until; $month = $this->next($month)) {
             $item = new RetainerMonth(
                 $month,
-                $opening,
+                $carried,
                 $retainerHours,
                 ($loggedSeconds[$month] ?? 0) / 3600,
-                $adjustments[$month] ?? 0.0,
+                $overrides[$month] ?? null,
             );
             $months[] = $item;
-            $opening = $item->getClosing();
+            $carried = $item->getClosing();
         }
 
         return $months;
