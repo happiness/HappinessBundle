@@ -45,10 +45,11 @@
                         <tr>
                             <td>
                                 {% if is_granted('view', row.project) %}
-                                    <a href="{{ path('project_details', {id: row.project.id}) }}">{{ row.project.customer.name }} / {{ row.project.name }}</a>
+                                    <a href="{{ path('project_details', {id: row.project.id}) }}">{{ row.project.name }}</a>
                                 {% else %}
-                                    {{ row.project.customer.name }} / {{ row.project.name }}
+                                    {{ row.project.name }}
                                 {% endif %}
+                                <div class="small text-muted">{{ row.project.customer.name }}</div>
                             </td>
                             <td>
                                 <div class="d-flex flex-wrap gap-1">
