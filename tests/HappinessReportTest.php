@@ -79,7 +79,7 @@ class HappinessReportTest extends TestCase
         $subscriber->onReporting($event);
 
         $reports = $event->getReports();
-        self::assertCount(1, $reports);
+        self::assertCount(2, $reports);
         $report = $reports[0];
         self::assertInstanceOf(Report::class, $report);
         self::assertEquals('happiness_report', $report->getId());
@@ -87,6 +87,11 @@ class HappinessReportTest extends TestCase
         self::assertEquals('report_happiness', $report->getLabel());
         self::assertEquals('fas fa-smile', $report->getReportIcon());
         self::assertEquals('happiness', $report->getTranslationDomain());
+
+        $active = $reports[1];
+        self::assertEquals('happiness_active_projects', $active->getId());
+        self::assertEquals('happiness_active_projects', $active->getRoute());
+        self::assertEquals('report_active_projects', $active->getLabel());
     }
 
     public function testHappinessReportQuery(): void

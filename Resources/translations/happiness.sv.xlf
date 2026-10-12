@@ -102,6 +102,70 @@
         <source>happiness.suggestions.title</source>
         <target>Ofta använda</target>
       </trans-unit>
+      <trans-unit id="report_active_projects" resname="report_active_projects">
+        <source>report_active_projects</source>
+        <target>Aktiva projekt</target>
+      </trans-unit>
+      <trans-unit id="happiness.active_projects.section.ongoing" resname="happiness.active_projects.section.ongoing">
+        <source>happiness.active_projects.section.ongoing</source>
+        <target>Löpande</target>
+      </trans-unit>
+      <trans-unit id="happiness.active_projects.section.fixed" resname="happiness.active_projects.section.fixed">
+        <source>happiness.active_projects.section.fixed</source>
+        <target>Fast pris / Projekt</target>
+      </trans-unit>
+      <trans-unit id="happiness.active_projects.section.retainer" resname="happiness.active_projects.section.retainer">
+        <source>happiness.active_projects.section.retainer</source>
+        <target>Retainers (fast månadssumma)</target>
+      </trans-unit>
+      <trans-unit id="happiness.active_projects.participants" resname="happiness.active_projects.participants">
+        <source>happiness.active_projects.participants</source>
+        <target>Projektdeltagare</target>
+      </trans-unit>
+      <trans-unit id="happiness.active_projects.estimated" resname="happiness.active_projects.estimated">
+        <source>happiness.active_projects.estimated</source>
+        <target>Beräknad tid</target>
+      </trans-unit>
+      <trans-unit id="happiness.active_projects.spent" resname="happiness.active_projects.spent">
+        <source>happiness.active_projects.spent</source>
+        <target>Nedlagd tid</target>
+      </trans-unit>
+      <trans-unit id="happiness.active_projects.remaining" resname="happiness.active_projects.remaining">
+        <source>happiness.active_projects.remaining</source>
+        <target>Kvar</target>
+      </trans-unit>
+      <trans-unit id="happiness.active_projects.overtime" resname="happiness.active_projects.overtime">
+        <source>happiness.active_projects.overtime</source>
+        <target>Mertid</target>
+      </trans-unit>
+      <trans-unit id="happiness.active_projects.saved" resname="happiness.active_projects.saved">
+        <source>happiness.active_projects.saved</source>
+        <target>Sparad tid</target>
+      </trans-unit>
+      <trans-unit id="happiness.active_projects.week" resname="happiness.active_projects.week">
+        <source>happiness.active_projects.week</source>
+        <target>Nedlagd tid i veckan</target>
+      </trans-unit>
+      <trans-unit id="happiness.active_projects.note" resname="happiness.active_projects.note">
+        <source>happiness.active_projects.note</source>
+        <target>Projektdeltagare är användare med tid på projektet de senaste %days% dagarna. Retainers visar månaden för vald vecka; sparad tid är saldot som förts in.</target>
+      </trans-unit>
+      <trans-unit id="happiness.active_projects.previous_week" resname="happiness.active_projects.previous_week">
+        <source>happiness.active_projects.previous_week</source>
+        <target>Föregående vecka</target>
+      </trans-unit>
+      <trans-unit id="happiness.active_projects.next_week" resname="happiness.active_projects.next_week">
+        <source>happiness.active_projects.next_week</source>
+        <target>Nästa vecka</target>
+      </trans-unit>
+      <trans-unit id="happiness.active_projects.this_week" resname="happiness.active_projects.this_week">
+        <source>happiness.active_projects.this_week</source>
+        <target>Denna vecka</target>
+      </trans-unit>
+      <trans-unit id="happiness.active_projects.week_number" resname="happiness.active_projects.week_number">
+        <source>happiness.active_projects.week_number</source>
+        <target>Vecka %week%, %year%</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

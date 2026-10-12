@@ -102,6 +102,70 @@
         <source>happiness.suggestions.title</source>
         <target>Frequently used</target>
       </trans-unit>
+      <trans-unit id="report_active_projects" resname="report_active_projects">
+        <source>report_active_projects</source>
+        <target>Active projects</target>
+      </trans-unit>
+      <trans-unit id="happiness.active_projects.section.ongoing" resname="happiness.active_projects.section.ongoing">
+        <source>happiness.active_projects.section.ongoing</source>
+        <target>Ongoing</target>
+      </trans-unit>
+      <trans-unit id="happiness.active_projects.section.fixed" resname="happiness.active_projects.section.fixed">
+        <source>happiness.active_projects.section.fixed</source>
+        <target>Fixed price / projects</target>
+      </trans-unit>
+      <trans-unit id="happiness.active_projects.section.retainer" resname="happiness.active_projects.section.retainer">
+        <source>happiness.active_projects.section.retainer</source>
+        <target>Retainers (fixed monthly hours)</target>
+      </trans-unit>
+      <trans-unit id="happiness.active_projects.participants" resname="happiness.active_projects.participants">
+        <source>happiness.active_projects.participants</source>
+        <target>Participants</target>
+      </trans-unit>
+      <trans-unit id="happiness.active_projects.estimated" resname="happiness.active_projects.estimated">
+        <source>happiness.active_projects.estimated</source>
+        <target>Estimated</target>
+      </trans-unit>
+      <trans-unit id="happiness.active_projects.spent" resname="happiness.active_projects.spent">
+        <source>happiness.active_projects.spent</source>
+        <target>Logged</target>
+      </trans-unit>
+      <trans-unit id="happiness.active_projects.remaining" resname="happiness.active_projects.remaining">
+        <source>happiness.active_projects.remaining</source>
+        <target>Remaining</target>
+      </trans-unit>
+      <trans-unit id="happiness.active_projects.overtime" resname="happiness.active_projects.overtime">
+        <source>happiness.active_projects.overtime</source>
+        <target>Overtime</target>
+      </trans-unit>
+      <trans-unit id="happiness.active_projects.saved" resname="happiness.active_projects.saved">
+        <source>happiness.active_projects.saved</source>
+        <target>Saved time</target>
+      </trans-unit>
+      <trans-unit id="happiness.active_projects.week" resname="happiness.active_projects.week">
+        <source>happiness.active_projects.week</source>
+        <target>Logged this week</target>
+      </trans-unit>
+      <trans-unit id="happiness.active_projects.note" resname="happiness.active_projects.note">
+        <source>happiness.active_projects.note</source>
+        <target>Participants are users with time on the project the last %days% days. Retainers show the month of the selected week; saved time is the balance carried in.</target>
+      </trans-unit>
+      <trans-unit id="happiness.active_projects.previous_week" resname="happiness.active_projects.previous_week">
+        <source>happiness.active_projects.previous_week</source>
+        <target>Previous week</target>
+      </trans-unit>
+      <trans-unit id="happiness.active_projects.next_week" resname="happiness.active_projects.next_week">
+        <source>happiness.active_projects.next_week</source>
+        <target>Next week</target>
+      </trans-unit>
+      <trans-unit id="happiness.active_projects.this_week" resname="happiness.active_projects.this_week">
+        <source>happiness.active_projects.this_week</source>
+        <target>This week</target>
+      </trans-unit>
+      <trans-unit id="happiness.active_projects.week_number" resname="happiness.active_projects.week_number">
+        <source>happiness.active_projects.week_number</source>
+        <target>Week %week%, %year%</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

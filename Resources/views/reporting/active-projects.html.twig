@@ -1,0 +1,92 @@
+{% extends 'reporting/layout.html.twig' %}
+
+{% macro hours(seconds) %}{{ ((seconds / 3600)|round(1)) ~ ' h' }}{% endmacro %}
+{% import _self as macros %}
+{% from 'macros/widgets.html.twig' import user_avatar %}
+
+{% block report %}
+    <div class="d-flex align-items-center gap-2 mb-3">
+        <a class="btn btn-icon" href="{{ path('happiness_active_projects', {week: previous_week}) }}" title="{{ 'happiness.active_projects.previous_week'|trans({}, 'happiness') }}"><i class="fas fa-chevron-left"></i></a>
+        <strong>{{ 'happiness.active_projects.week_number'|trans({'%week%': week_start|date('W'), '%year%': week_start|date('o')}, 'happiness') }}</strong>
+        <span class="text-muted">{{ week_start|date_short }} – {{ week_start|date_modify('+6 days')|date_short }}</span>
+        <a class="btn btn-icon" href="{{ path('happiness_active_projects', {week: next_week}) }}" title="{{ 'happiness.active_projects.next_week'|trans({}, 'happiness') }}"><i class="fas fa-chevron-right"></i></a>
+        {% if not is_current_week %}
+            <a class="btn" href="{{ path('happiness_active_projects') }}">{{ 'happiness.active_projects.this_week'|trans({}, 'happiness') }}</a>
+        {% endif %}
+    </div>
+    {% for section, rows in sections %}
+        <div class="card mb-3">
+            <div class="card-header">
+                <h3 class="card-title">{{ ('happiness.active_projects.section.' ~ section)|trans({}, 'happiness') }}</h3>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover table-vcenter card-table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>{{ 'project'|trans }}</th>
+                            <th>{{ 'happiness.active_projects.participants'|trans({}, 'happiness') }}</th>
+                            {% if section != 'ongoing' %}
+                                <th class="text-end">{{ 'happiness.active_projects.estimated'|trans({}, 'happiness') }}</th>
+                            {% endif %}
+                            <th class="text-end">{{ 'happiness.active_projects.spent'|trans({}, 'happiness') }}</th>
+                            {% if section != 'ongoing' %}
+                                <th class="text-end">{{ 'happiness.active_projects.remaining'|trans({}, 'happiness') }}</th>
+                            {% endif %}
+                            {% if section == 'fixed' %}
+                                <th class="text-end">{{ 'happiness.active_projects.overtime'|trans({}, 'happiness') }}</th>
+                            {% elseif section == 'retainer' %}
+                                <th class="text-end">{{ 'happiness.active_projects.saved'|trans({}, 'happiness') }}</th>
+                            {% endif %}
+                            <th class="text-end">{{ 'happiness.active_projects.week'|trans({}, 'happiness') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for row in rows %}
+                        <tr>
+                            <td>
+                                {% if is_granted('view', row.project) %}
+                                    <a href="{{ path('project_details', {id: row.project.id}) }}">{{ row.project.customer.name }} / {{ row.project.name }}</a>
+                                {% else %}
+                                    {{ row.project.customer.name }} / {{ row.project.name }}
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="d-flex flex-wrap gap-1">
+                                    {% for participant in row.participants %}
+                                        {% if participant.seconds > 0 %}
+                                            <span class="d-inline-flex align-items-center gap-2 border rounded-pill bg-body ps-1 pe-2 py-1 small text-nowrap">
+                                                {{ user_avatar(participant.user, null, 'avatar-xs avatar-rounded') }}
+                                                {{ macros.hours(participant.seconds) }}
+                                            </span>
+                                        {% else %}
+                                            <span class="py-1 opacity-50">{{ user_avatar(participant.user, null, 'avatar-xs avatar-rounded') }}</span>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </td>
+                            {% if section != 'ongoing' %}
+                                <td class="text-end text-nowrap">{{ macros.hours(row.estimate) }}</td>
+                            {% endif %}
+                            <td class="text-end text-nowrap">{{ macros.hours(row.spent) }}</td>
+                            {% if section != 'ongoing' %}
+                                <td class="text-end text-nowrap{{ row.remaining < 0 ? ' text-danger' : '' }}">{{ macros.hours(row.remaining) }}</td>
+                            {% endif %}
+                            {% if section == 'fixed' %}
+                                <td class="text-end text-nowrap">{{ row.overtime > 0 ? macros.hours(row.overtime) : '' }}</td>
+                            {% elseif section == 'retainer' %}
+                                <td class="text-end text-nowrap{{ row.saved is not null and row.saved < 0 ? ' text-danger' : '' }}">{{ row.saved is null ? '' : macros.hours(row.saved) }}</td>
+                            {% endif %}
+                            <td class="text-end text-nowrap">{{ row.weekTotal > 0 ? macros.hours(row.weekTotal) : '' }}</td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="7" class="text-center text-muted py-4">{{ 'error.no_entries_found'|trans }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% endfor %}
+    <p class="text-muted small">{{ 'happiness.active_projects.note'|trans({'%days%': participant_days}, 'happiness') }}</p>
+{% endblock %}

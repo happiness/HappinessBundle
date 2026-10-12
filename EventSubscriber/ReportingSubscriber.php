@@ -42,5 +42,13 @@ final class ReportingSubscriber implements EventSubscriberInterface
             'fas fa-smile',
             'happiness'
         ));
+
+        $event->addReport(new Report(
+            'happiness_active_projects',
+            'happiness_active_projects',
+            'report_active_projects',
+            'fas fa-list-check',
+            'happiness'
+        ));
     }
 }
