@@ -24,7 +24,7 @@ use Doctrine\ORM\EntityManagerInterface;
  */
 class CommonCombinationService
 {
-    public const AMOUNT = 5;
+    public const AMOUNT = 10;
 
     public function __construct(private readonly EntityManagerInterface $entityManager, private readonly SystemConfiguration $configuration)
     {

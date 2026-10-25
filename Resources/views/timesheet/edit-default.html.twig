@@ -55,9 +55,9 @@
                 {% set happinessCombinations = happiness_common_combinations(form.vars.data.user) %}
                 {% if happinessCombinations is not empty %}
                     <style>
-                        .happiness-combination { max-width: calc((100% - 1rem) / 3); text-align: left; line-height: 1.25; }
-                        .happiness-combination-text { display: block; min-width: 0; font-size: .75em; }
-                        .happiness-combination-customer { margin-bottom: .2rem; opacity: .85; }
+                        .happiness-combination { display: inline-flex; align-items: center; gap: .35rem; max-width: 100%; padding: .2rem .75rem; border-radius: 50rem; font-size: .6875rem; line-height: 1.4; white-space: nowrap; }
+                        .happiness-combination > span { overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+                        .happiness-combination-customer { max-width: 10rem; }
                     </style>
                     <div class="mb-3 row happiness-combinations"
                          data-customer="{{ form.customer.vars.id }}"
@@ -66,15 +66,12 @@
                         <label class="col-form-label col-sm-2">{{ 'happiness.suggestions.title'|trans({}, 'happiness') }}</label>
                         <div class="col-sm-10 d-flex flex-wrap gap-2 align-items-center">
                             {% for combination in happinessCombinations %}
-                                <button type="button" class="btn btn-sm btn-outline happiness-combination"
+                                <button type="button" class="btn btn-sm btn-outline-secondary happiness-combination"
                                         data-customer="{{ combination.project.customer.id }}"
                                         data-project="{{ combination.project.id }}"
                                         data-activity="{{ combination.activity.id }}"
                                         title="{{ combination.project.customer.name }} &rsaquo; {{ combination.project.name }} &rsaquo; {{ combination.activity.name }}">
-                                    <span class="happiness-combination-text">
-                                        <span class="happiness-combination-customer d-block text-truncate">{{ combination.project.customer.name }}</span>
-                                        <span class="d-block text-truncate">{{ combination.project.name }} &rsaquo; {{ combination.activity.name }}</span>
-                                    </span>
+                                    <span class="happiness-combination-customer">{{ combination.project.customer.name }}</span>
                                 </button>
                             {% endfor %}
                         </div>
