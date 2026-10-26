@@ -92,41 +92,51 @@
                             // so the values have to be applied one after the other.
                             // "data-reloaded" is dispatched while the reloaded select is still disabled and flagged as
                             // "reloading", so changing its value right away would be ignored or race with the reload.
-                            const whenSettled = (select, callback) => {
-                                if (select.dataset.reloading === '1' || select.disabled) {
-                                    setTimeout(() => whenSettled(select, callback), 20);
-                                    return;
-                                }
-                                callback();
+                            const settled = (select) => new Promise((resolve) => {
+                                const check = () => (select.dataset.reloading === '1' || select.disabled) ? setTimeout(check, 20) : resolve();
+                                check();
+                            });
+
+                            // resolves with the next "data-reloaded" of the select (or after a timeout, so a click can never hang)
+                            const reloaded = (select, trigger) => new Promise((resolve) => {
+                                const done = () => {
+                                    clearTimeout(timer);
+                                    select.removeEventListener('data-reloaded', done);
+                                    resolve();
+                                };
+                                const timer = setTimeout(done, 5000);
+                                select.addEventListener('data-reloaded', done);
+                                trigger();
+                            }).then(() => settled(select));
+
+                            const setValue = (select, value) => {
+                                select.tomselect !== undefined ? select.tomselect.setValue(value) : (select.value = value, select.dispatchEvent(new Event('change', {bubbles: true})));
                             };
 
-                            const apply = (values, index, reloadPending) => {
-                                const select = selects[index];
-                                const equal = select.value === values[index];
-                                if (index === selects.length - 1) {
-                                    if (!equal) {
-                                        select.tomselect !== undefined ? select.tomselect.setValue(values[index]) : (select.value = values[index]);
-                                    }
-                                    return;
+                            const apply = async ([customer, project, activity]) => {
+                                const [customerSelect, projectSelect, activitySelect] = selects;
+
+                                if (customerSelect.value !== customer) {
+                                    await reloaded(projectSelect, () => setValue(customerSelect, customer));
+                                    // clearing the project triggers an activity reload without a project, wait for it
+                                    await settled(activitySelect);
                                 }
-                                if (equal && !reloadPending) {
-                                    apply(values, index + 1, false);
-                                    return;
+                                if (projectSelect.value !== project) {
+                                    setValue(projectSelect, project);
                                 }
-                                const next = selects[index + 1];
-                                const onReloaded = () => {
-                                    next.removeEventListener('data-reloaded', onReloaded);
-                                    whenSettled(next, () => apply(values, index + 1, true));
-                                };
-                                next.addEventListener('data-reloaded', onReloaded);
-                                if (!equal) {
-                                    select.tomselect !== undefined ? select.tomselect.setValue(values[index]) : (select.value = values[index], select.dispatchEvent(new Event('change', {bubbles: true})));
+                                // The change of the project is ignored by Kimai while the activities are still being reloaded
+                                // (e.g. for the empty project), which would leave only global activities in the list.
+                                // Waiting for any running reload and then forcing a new one makes sure the project's activities are loaded.
+                                await settled(activitySelect);
+                                await reloaded(activitySelect, () => projectSelect.dispatchEvent(new Event('change', {bubbles: true})));
+                                if (activitySelect.value !== activity) {
+                                    setValue(activitySelect, activity);
                                 }
                             };
 
                             box.querySelectorAll('.happiness-combination').forEach((button) => {
                                 button.addEventListener('click', () => {
-                                    apply([button.dataset.customer, button.dataset.project, button.dataset.activity], 0, false);
+                                    apply([button.dataset.customer, button.dataset.project, button.dataset.activity]);
                                 });
                             });
                         })();
