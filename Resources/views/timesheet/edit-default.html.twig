@@ -90,6 +90,16 @@
 
                             // Each select reloads the next one via the API and dispatches "data-reloaded" when done,
                             // so the values have to be applied one after the other.
+                            // "data-reloaded" is dispatched while the reloaded select is still disabled and flagged as
+                            // "reloading", so changing its value right away would be ignored or race with the reload.
+                            const whenSettled = (select, callback) => {
+                                if (select.dataset.reloading === '1' || select.disabled) {
+                                    setTimeout(() => whenSettled(select, callback), 20);
+                                    return;
+                                }
+                                callback();
+                            };
+
                             const apply = (values, index, reloadPending) => {
                                 const select = selects[index];
                                 const equal = select.value === values[index];
@@ -106,7 +116,7 @@
                                 const next = selects[index + 1];
                                 const onReloaded = () => {
                                     next.removeEventListener('data-reloaded', onReloaded);
-                                    apply(values, index + 1, true);
+                                    whenSettled(next, () => apply(values, index + 1, true));
                                 };
                                 next.addEventListener('data-reloaded', onReloaded);
                                 if (!equal) {
