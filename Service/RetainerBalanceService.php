@@ -14,6 +14,7 @@ namespace KimaiPlugin\HappinessBundle\Service;
 use App\Entity\Project;
 use App\Entity\ProjectMeta;
 use App\Entity\Timesheet;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
 use KimaiPlugin\HappinessBundle\Configuration\RetainerBalanceFields;
@@ -122,16 +123,15 @@ final class RetainerBalanceService
             return [];
         }
 
-        // the balance groups by the month of the begin in UTC (as hydrated by the UTC datetime type)
-        $from = new \DateTimeImmutable($month . '-01 00:00:00', new \DateTimeZone('UTC'));
+        $from = new \DateTimeImmutable($month . '-01');
 
         return array_values($this->createLoggedQueryBuilder($project, $start)
             ->select('t', 'a', 'u')
             ->join('t.user', 'u')
-            ->andWhere('t.begin >= :monthStart')
-            ->andWhere('t.begin < :monthEnd')
-            ->setParameter('monthStart', $from)
-            ->setParameter('monthEnd', $from->modify('first day of next month'))
+            ->andWhere('t.date >= :monthStart')
+            ->andWhere('t.date < :monthEnd')
+            ->setParameter('monthStart', $from, Types::DATE_IMMUTABLE)
+            ->setParameter('monthEnd', $from->modify('first day of next month'), Types::DATE_IMMUTABLE)
             ->orderBy('t.begin')
             ->addOrderBy('t.id')
             ->getQuery()
@@ -139,18 +139,18 @@ final class RetainerBalanceService
     }
 
     /**
-     * @return array<string, int> logged seconds of finished timesheets indexed by month (YYYY-MM)
+     * @return array<string, int> logged seconds of finished timesheets indexed by month (YYYY-MM) of their local date
      */
     private function getLoggedSeconds(Project $project, string $start): array
     {
         $rows = $this->createLoggedQueryBuilder($project, $start)
-            ->select('t.begin AS begin', 't.duration AS duration')
+            ->select('t.date AS date', 't.duration AS duration')
             ->getQuery()
             ->getArrayResult();
 
         $seconds = [];
         foreach ($rows as $row) {
-            $month = $row['begin']->format('Y-m');
+            $month = $row['date']->format('Y-m');
             $seconds[$month] = ($seconds[$month] ?? 0) + (int) $row['duration'];
         }
 
@@ -159,6 +159,8 @@ final class RetainerBalanceService
 
     /**
      * The timesheets that count against the retainer: finished, not on the excluded activity, from the start month on.
+     * Months follow the local date of a timesheet (date_tz in the user's timezone), not its begin in UTC,
+     * so time logged just after midnight on the 1st belongs to the new month.
      */
     private function createLoggedQueryBuilder(Project $project, string $start): QueryBuilder
     {
@@ -167,10 +169,10 @@ final class RetainerBalanceService
             ->join('t.activity', 'a')
             ->where('t.project = :project')
             ->andWhere('LOWER(a.name) <> :excluded')
-            ->andWhere('t.begin >= :from')
+            ->andWhere('t.date >= :from')
             ->andWhere('t.end IS NOT NULL')
             ->setParameter('project', $project)
             ->setParameter('excluded', mb_strtolower(self::EXCLUDED_ACTIVITY))
-            ->setParameter('from', new \DateTime($start . '-01 00:00:00'));
+            ->setParameter('from', new \DateTimeImmutable($start . '-01'), Types::DATE_IMMUTABLE);
     }
 }

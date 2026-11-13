@@ -14,6 +14,7 @@ namespace KimaiPlugin\HappinessBundle\Tests;
 use App\Entity\Project;
 use App\Entity\ProjectMeta;
 use App\Entity\Timesheet;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\AbstractQuery;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Query\Expr;
@@ -51,7 +52,7 @@ class ActiveProjectsSpentTest extends TestCase
         self::assertSame($project, $this->builders[0]->getParameter('project')?->getValue());
     }
 
-    public function testRetainerUsesTheLoggedTimesheetsOfTheMonthInUtc(): void
+    public function testRetainerUsesTheLoggedTimesheetsOfTheMonthByLocalDate(): void
     {
         $timesheet = new Timesheet();
         $em = $this->entityManager([$timesheet]);
@@ -66,11 +67,13 @@ class ActiveProjectsSpentTest extends TestCase
         self::assertStringContainsString('t.end IS NOT NULL', $dql);
         self::assertStringNotContainsString('billable', $dql);
         self::assertStringContainsString('LOWER(a.name) <> :excluded', $dql);
-        self::assertStringContainsString('t.begin >= :monthStart', $dql);
-        self::assertStringContainsString('t.begin < :monthEnd', $dql);
+        self::assertStringContainsString('t.date >= :from', $dql);
+        self::assertStringContainsString('t.date >= :monthStart', $dql);
+        self::assertStringContainsString('t.date < :monthEnd', $dql);
         self::assertSame('faktureras ej', $qb->getParameter('excluded')?->getValue());
-        self::assertEquals(new \DateTimeImmutable('2026-11-01 00:00:00', new \DateTimeZone('UTC')), $qb->getParameter('monthStart')?->getValue());
-        self::assertEquals(new \DateTimeImmutable('2026-12-01 00:00:00', new \DateTimeZone('UTC')), $qb->getParameter('monthEnd')?->getValue());
+        self::assertSame('2026-01-01', $this->dateParameter($qb, 'from'));
+        self::assertSame('2026-11-01', $this->dateParameter($qb, 'monthStart'));
+        self::assertSame('2026-12-01', $this->dateParameter($qb, 'monthEnd'));
     }
 
     public function testRetainerWithoutStartMonthHasNoTimesheets(): void
@@ -101,6 +104,20 @@ class ActiveProjectsSpentTest extends TestCase
         self::assertStringContainsString("{% extends 'reporting/layout.html.twig' %}", $breakdown);
         self::assertStringContainsString('timesheet.duration|duration', $breakdown);
         self::assertStringContainsString('macros.hours(total)', $breakdown);
+    }
+
+    /**
+     * The value (Y-m-d) of a parameter bound as date, the type of the local date column date_tz.
+     */
+    private function dateParameter(QueryBuilder $qb, string $name): string
+    {
+        $parameter = $qb->getParameter($name);
+        self::assertNotNull($parameter);
+        self::assertSame(Types::DATE_IMMUTABLE, $parameter->getType());
+        $value = $parameter->getValue();
+        self::assertInstanceOf(\DateTimeInterface::class, $value);
+
+        return $value->format('Y-m-d');
     }
 
     /**
