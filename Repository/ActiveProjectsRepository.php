@@ -15,6 +15,7 @@ use App\Entity\Project;
 use App\Entity\Timesheet;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\QueryBuilder;
 use KimaiPlugin\HappinessBundle\Model\ActiveProjectRow;
 use KimaiPlugin\HappinessBundle\Service\RetainerBalanceService;
 
@@ -115,15 +116,36 @@ final class ActiveProjectsRepository
     }
 
     /**
+     * The timesheets behind the spent time of a project row, ordered by begin: the retainer month of the given week, otherwise all time.
+     *
+     * @param \DateTimeImmutable $weekStart Monday of the shown week
+     * @return list<Timesheet>
+     */
+    public function findSpentTimesheets(Project $project, \DateTimeImmutable $weekStart): array
+    {
+        if ($this->retainers->isRetainer($project)) {
+            return $this->retainers->findLoggedTimesheets($project, $weekStart->format('Y-m'));
+        }
+
+        return array_values($this->createSpentQueryBuilder()
+            ->select('t', 'a', 'u')
+            ->leftJoin('t.activity', 'a')
+            ->leftJoin('t.user', 'u')
+            ->andWhere('t.project = :project')
+            ->setParameter('project', $project)
+            ->orderBy('t.begin')
+            ->addOrderBy('t.id')
+            ->getQuery()
+            ->getResult());
+    }
+
+    /**
      * @return array<int, int> all time seconds of finished billable timesheets by project id
      */
     private function getTotals(): array
     {
-        $rows = $this->entityManager->createQueryBuilder()
+        $rows = $this->createSpentQueryBuilder()
             ->select('IDENTITY(t.project) AS project', 'SUM(t.duration) AS spent')
-            ->from(Timesheet::class, 't')
-            ->where('t.end IS NOT NULL')
-            ->andWhere('t.billable = true')
             ->groupBy('t.project')
             ->getQuery()
             ->getArrayResult();
@@ -134,6 +156,17 @@ final class ActiveProjectsRepository
         }
 
         return $totals;
+    }
+
+    /**
+     * The timesheets counted as spent time outside retainers: finished and billable.
+     */
+    private function createSpentQueryBuilder(): QueryBuilder
+    {
+        return $this->entityManager->createQueryBuilder()
+            ->from(Timesheet::class, 't')
+            ->where('t.end IS NOT NULL')
+            ->andWhere('t.billable = true');
     }
 
     /**

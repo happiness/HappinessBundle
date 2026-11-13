@@ -5,6 +5,7 @@
 {% from 'macros/widgets.html.twig' import user_avatar %}
 
 {% block report %}
+    {% set can_view_timesheets = is_granted('view_other_timesheet') %}
     <div class="d-flex align-items-center gap-2 mb-3">
         <a class="btn btn-icon" href="{{ path('happiness_active_projects', {week: previous_week}) }}" title="{{ 'happiness.active_projects.previous_week'|trans({}, 'happiness') }}"><i class="fas fa-chevron-left"></i></a>
         <strong>{{ 'happiness.active_projects.week_number'|trans({'%week%': week_start|date('W'), '%year%': week_start|date('o')}, 'happiness') }}</strong>
@@ -68,7 +69,13 @@
                             {% if section != 'ongoing' %}
                                 <td class="text-end text-nowrap">{{ macros.hours(row.estimate) }}</td>
                             {% endif %}
-                            <td class="text-end text-nowrap">{{ macros.hours(row.spent) }}</td>
+                            <td class="text-end text-nowrap">
+                                {% if can_view_timesheets and row.spent > 0 %}
+                                    <a href="{{ path('happiness_active_projects_spent', {id: row.project.id, week: week}) }}">{{ macros.hours(row.spent) }}</a>
+                                {% else %}
+                                    {{ macros.hours(row.spent) }}
+                                {% endif %}
+                            </td>
                             {% if section != 'ongoing' %}
                                 <td class="text-end text-nowrap{{ row.remaining < 0 ? ' text-danger' : '' }}">{{ macros.hours(row.remaining) }}</td>
                             {% endif %}

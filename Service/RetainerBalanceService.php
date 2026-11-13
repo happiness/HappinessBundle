@@ -15,6 +15,7 @@ use App\Entity\Project;
 use App\Entity\ProjectMeta;
 use App\Entity\Timesheet;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\QueryBuilder;
 use KimaiPlugin\HappinessBundle\Configuration\RetainerBalanceFields;
 use KimaiPlugin\HappinessBundle\Model\RetainerMonth;
 use KimaiPlugin\HappinessBundle\Repository\RetainerAdjustmentRepository;
@@ -109,21 +110,41 @@ final class RetainerBalanceService
     }
 
     /**
+     * The timesheets behind the logged time of a month (YYYY-MM) in the balance, ordered by begin.
+     * Empty if the start month is missing or lies after the month.
+     *
+     * @return list<Timesheet>
+     */
+    public function findLoggedTimesheets(Project $project, string $month): array
+    {
+        $start = $this->getStartMonth($project);
+        if ($start === null || $start > $month) {
+            return [];
+        }
+
+        // the balance groups by the month of the begin in UTC (as hydrated by the UTC datetime type)
+        $from = new \DateTimeImmutable($month . '-01 00:00:00', new \DateTimeZone('UTC'));
+
+        return array_values($this->createLoggedQueryBuilder($project, $start)
+            ->select('t', 'a', 'u')
+            ->join('t.user', 'u')
+            ->andWhere('t.begin >= :monthStart')
+            ->andWhere('t.begin < :monthEnd')
+            ->setParameter('monthStart', $from)
+            ->setParameter('monthEnd', $from->modify('first day of next month'))
+            ->orderBy('t.begin')
+            ->addOrderBy('t.id')
+            ->getQuery()
+            ->getResult());
+    }
+
+    /**
      * @return array<string, int> logged seconds of finished timesheets indexed by month (YYYY-MM)
      */
     private function getLoggedSeconds(Project $project, string $start): array
     {
-        $rows = $this->entityManager->createQueryBuilder()
+        $rows = $this->createLoggedQueryBuilder($project, $start)
             ->select('t.begin AS begin', 't.duration AS duration')
-            ->from(Timesheet::class, 't')
-            ->join('t.activity', 'a')
-            ->where('t.project = :project')
-            ->andWhere('LOWER(a.name) <> :excluded')
-            ->andWhere('t.begin >= :from')
-            ->andWhere('t.end IS NOT NULL')
-            ->setParameter('project', $project)
-            ->setParameter('excluded', mb_strtolower(self::EXCLUDED_ACTIVITY))
-            ->setParameter('from', new \DateTime($start . '-01 00:00:00'))
             ->getQuery()
             ->getArrayResult();
 
@@ -134,5 +155,22 @@ final class RetainerBalanceService
         }
 
         return $seconds;
+    }
+
+    /**
+     * The timesheets that count against the retainer: finished, not on the excluded activity, from the start month on.
+     */
+    private function createLoggedQueryBuilder(Project $project, string $start): QueryBuilder
+    {
+        return $this->entityManager->createQueryBuilder()
+            ->from(Timesheet::class, 't')
+            ->join('t.activity', 'a')
+            ->where('t.project = :project')
+            ->andWhere('LOWER(a.name) <> :excluded')
+            ->andWhere('t.begin >= :from')
+            ->andWhere('t.end IS NOT NULL')
+            ->setParameter('project', $project)
+            ->setParameter('excluded', mb_strtolower(self::EXCLUDED_ACTIVITY))
+            ->setParameter('from', new \DateTime($start . '-01 00:00:00'));
     }
 }

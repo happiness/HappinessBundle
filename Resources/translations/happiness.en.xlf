@@ -166,6 +166,14 @@
         <source>happiness.active_projects.week_number</source>
         <target>Week %week%, %year%</target>
       </trans-unit>
+      <trans-unit id="happiness.active_projects.spent_all_time" resname="happiness.active_projects.spent_all_time">
+        <source>happiness.active_projects.spent_all_time</source>
+        <target>Breakdown of spent time: all finished, billable time on the project.</target>
+      </trans-unit>
+      <trans-unit id="happiness.active_projects.spent_retainer" resname="happiness.active_projects.spent_retainer">
+        <source>happiness.active_projects.spent_retainer</source>
+        <target>Breakdown of spent time: all finished time in %month% except the activity %activity%.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
